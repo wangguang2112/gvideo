@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#3F51B5</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="transparent">#00FFFFFF</color>
+    <color name="toast_background">#88111111</color>
+    <color name="white">#ffffff</color>
+    <color name="black">#000000</color>
+    <color name="background_color">#f2f3f6</color>
+
+    <color name="wheelcolor">#66EEEEEE</color>
+
+    <!-- ***************************常用颜色*************************** -->
+
+    <color name="login_white">#55FFFFFF</color>
+    <!-- Alert背景 原来为C8CDCE-->
+    <color name="alert_background">#FFFFFF</color>
+    <!-- LoadingAlert背景 -->
+    <color name="loding_alert_background">#FFFFFF</color>
+
+    <!-- 灰色 -->
+    <color name="gray">#A49C97</color>
+    <!-- 灰色竖线 -->
+    <color name="gray_line">#DDDDDD</color>
+    <!-- 浅蓝色 -->
+    <color name="light_blue">#10B6EE</color>
+    <!-- 灰色 -->
+    <color name="light_gray">#B8B8B8</color>
+
+    <!-- ***************************背景颜色*************************** -->
+
+    <!-- 灰色背景 最新ui改版颜色-->
+    <color name="gray_background">#edeff1</color>
+    <!-- 深灰色背景 -->
+    <color name="dark_gray_background">#87827D</color>
+    <!-- 浅灰色背景 -->
+    <color name="light_background">#edeff1</color>
+    <!-- 通用可点击条目按下颜色 -->
+    <color name="clickable_down">#EAEBEB</color>
+    <!-- Tab背景颜色 -->
+    <color name="tab_background">#FFFFFF</color>
+    <!-- Tab背景颜色 半透明 -->
+    <color name="tab_alpha_background">#EE372E27</color>
+    <!-- Tab背景分割线颜色 -->
+    <color name="tab_background_border">#2D2B29</color>
+    <!-- 工作台消息提醒背景颜色 -->
+    <color name="workbench_background">#edeff1</color>
+    <!-- 粉色 -->
+    <color name="pink_background">#FCF4F2</color>
+    <!-- 黄色 -->
+    <color name="yellow_background">#FF704f</color>
+
+    <!-- 蓝色 -->
+    <color name="blue_background">#73B8E2</color>
+    <!-- 棕色 -->
+    <color name="brown_background">#40352D</color>
+    <!-- 浅蓝色 -->
+    <color name="light_blue_background">#E7F7FF</color>
+    <!-- 淡蓝色 -->
+    <color name="very_light_blue">#f4f7fa</color>
+    <!-- 蒙层背景 -->
+    <color name="mask_background">#00000000</color>
+    <!-- SideBar中的字体颜色-->
+    <color name="sidebar_selected_background">#f8f9fa</color>
+    <!-- sidebar的蓝色字体颜色 -->
+    <color name="sidebar_char_color">#635952</color>
+    <!-- 目录选中的颜色 -->
+    <color name="sort_list_selected">#D8D3CE</color>
+    <!-- LinkageListView的背景色 -->
+    <color name="linkage_listview_background">#FFFFFF</color>
+    <!-- LinkageListView的分割线的背景色  -->
+    <color name="linkage_listview_divider_background">#FAF2EF</color>
+    <!-- WheelView的背景色 -->
+    <color name="wheel_view_background_color">#F3F3F3</color>
+
+    <!-- ***************************文字颜色*************************** -->
+    <!-- 正常文字颜色 -->
+    <color name="normal_text">#312822</color>
+    <!-- 棕色文字 -->
+    <color name="brown_text">#533523</color>
+    <!-- 灰色文字 -->
+    <color name="gray_text">#808080</color>
+    <drawable name="bind_existed_account_normal">#87C4FC</drawable>
+    <drawable name="bind_existed_account_pressed">#808080</drawable>
+    <!-- 浅灰色文字 -->
+    <color name="light_gray_text">#D8D3CE</color>
+    <color name="comm_set_identify">#a5a6a7</color>
+    <color name="comm_sett_username">#a5a6a7</color>
+    <!-- 深灰色文字 -->
+    <color name="dark_gray_text">#444444</color>
+    <color name="management_gray_text">#555555</color>
+    <!-- 灰色提示文字 新版ui -->
+    <color name="tips_gray_text">#808080</color>
+    <color name="comm_dark_gray">#808080</color>
+    <!-- 白色文字 -->
+    <color name="white_text">#FFFFFF</color>
+    <!-- 黄色文字 -->
+    <color name="yellow_text">#FF704f</color>
+    <!-- 蓝色文字 -->
+    <color name="blue_text">#73B8E2</color>
+    <!-- 深蓝色文字 -->
+    <color name="dark_blue_text">#009FE9</color>
+    <!-- 绿色文字 -->
+    <color name="green_text">#66cc00</color>
+    <!-- 红色文字 -->
+    <color name="red_text">#f5695c</color>
+    <!-- 列表页item标题文字颜色 -->
+    <color name="list_title_text_color">#1b1b1b</color>
+
+    <!-- 红色文字 -->
+    <color name="dark_text">#333333</color>
+
+
+</resources>

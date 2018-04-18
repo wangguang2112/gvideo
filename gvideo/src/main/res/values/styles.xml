@@ -1,0 +1,52 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowBackground">@color/background_color</item>
+    </style>
+
+    <!-- Base application theme. -->
+    <style name="LaunchTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <!--<item name="android:background">@drawable/back</item>-->
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowFrame">@null</item><!-- 边框 -->
+        <item name="android:windowBackground">@color/background_color</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+    </style>
+
+
+    <!-- Base application theme. -->
+    <style name="FullScreenTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowFrame">@null</item><!-- 边框 -->
+        <item name="android:windowBackground">@color/background_color</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+    </style>
+
+    <!-- Base application theme. -->
+    <style name="TranslucentDialog" parent="Theme.AppCompat">
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowFrame">@null</item><!-- 边框 -->
+        <item name="android:windowBackground">@color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+    </style>
+
+    <!--弹窗动画-->
+    <style name="DialogRightAnim" parent="android:Animation">
+        <!--//进入时的动画-->
+        <item name="android:windowEnterAnimation">@anim/dialog_right_in</item>
+        <!--//退出时的动画-->
+        <item name="android:windowExitAnimation">@anim/dialog_right_out</item>
+    </style>
+
+</resources>

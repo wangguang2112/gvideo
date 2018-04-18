@@ -1,0 +1,49 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
+android {
+    compileSdkVersion 26
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    api 'com.android.support:appcompat-v7:26.1.0'
+    api 'com.android.support:transition:26.1.0'
+    api 'com.android.support:recyclerview-v7:26.1.0'
+    api 'com.squareup.okhttp3:okhttp:3.8.1'
+    api 'com.jakewharton:butterknife:8.4.0'
+    api 'io.reactivex:rxandroid:1.2.1'
+    api 'com.code19.library:library:0.0.7'
+    api 'com.squareup.retrofit2:retrofit:2.3.0'
+    api 'com.squareup.retrofit2:converter-gson:2.3.0'
+    api 'com.squareup.retrofit2:adapter-rxjava:2.3.0'
+    api 'io.reactivex:rxandroid:1.2.1'
+    api 'com.jakewharton.rxbinding:rxbinding:0.3.0'
+    api 'io.reactivex:rxkotlin:1.0.0'
+    api 'com.airbnb.android:lottie:2.0.0'
+    api 'com.google.dagger:dagger:2.11'
+    api 'com.google.dagger:dagger-android:2.11'
+    api 'com.google.dagger:dagger-android-support:2.11'
+    api 'com.facebook.fresco:fresco:0.10.0'
+    api 'com.facebook.fresco:webpsupport:0.10.0'
+    api 'com.facebook.fresco:imagepipeline-okhttp3:0.10.0'
+    api "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    api "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    api "com.jwkj:M3U8Manger:v1.0.7"
+}

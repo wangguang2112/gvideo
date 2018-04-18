@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- 0dp-->
+    <dimen name="zero_dp">0dp</dimen>
+    <!-- 通用间隔 -->
+    <dimen name="gap">6dp</dimen>
+    <!-- 正常子元素间隔 -->
+    <dimen name="normal_item_spacing">1px</dimen>
+    <!-- 子元素大间隔 -->
+    <dimen name="big_item_spacing">10dp</dimen>
+    <!-- 正常边界尺寸 -->
+    <dimen name="normal_padding">16px</dimen>
+    <!-- 大边界尺寸 -->
+    <dimen name="big_padding">20dp</dimen>
+    <!-- 正常顶部边界尺寸 -->
+    <dimen name="normal_padding_top">15dp</dimen>
+    <!-- 正常底部边界尺寸 -->
+    <dimen name="normal_padding_bottom">10dp</dimen>
+    <!-- 正常左边界尺寸 -->
+    <dimen name="normal_padding_left">10dp</dimen>
+    <!-- 正常右边界尺寸 -->
+    <dimen name="normal_padding_right">10dp</dimen>
+
+    <!-- 2dp间距 -->
+    <dimen name="padding_2_dp">2dp</dimen>
+    <!-- 3dp间距 -->
+    <dimen name="padding_3_dp">3dp</dimen>
+    <!-- 4dp间距 -->
+    <dimen name="padding_4_dp">4dp</dimen>
+    <!-- 5dp间距 -->
+    <dimen name="padding_5_dp">5dp</dimen>
+    <!-- 6dp间距 -->
+    <dimen name="padding_6_dp">6dp</dimen>
+    <!-- 7dp间距 -->
+    <dimen name="padding_7_dp">7dp</dimen>
+    <!-- 8dp间距 -->
+    <dimen name="padding_8_dp">8dp</dimen>
+     <!-- 15dp间距 -->
+    <dimen name="padding_15_dp">15dp</dimen>
+
+
+    <!-- 正常圆角尺寸 -->
+    <dimen name="normal_radius">4.5dp</dimen>
+    <!-- 中等圆角尺寸 -->
+    <dimen name="middle_radius">4dp</dimen>
+    <!-- 小圆角尺寸 -->
+    <dimen name="small_radius">2dp</dimen>
+    <!-- 正常文字尺寸 -->
+    <dimen name="normal_text">16dp</dimen>
+    <!-- 小字体文字尺寸 -->
+    <dimen name="small_text">12sp</dimen>
+    <!-- 特小字体文字尺寸 -->
+    <dimen name="tiny_text">10sp</dimen>
+
+    <!-- 13号字体文字尺寸 -->
+    <dimen name="size_13_text">13sp</dimen>
+    <!-- 14号字体文字尺寸 -->
+    <dimen name="size_14_text">14sp</dimen>
+    <!-- 15号字体文字尺寸 -->
+    <dimen name="size_15_text">15sp</dimen>
+    <!-- 16号字体文字尺寸 -->
+    <dimen name="size_16_text">16sp</dimen>
+    <!-- 17号字体文字尺寸 -->
+    <dimen name="size_17_text">17sp</dimen>
+    <!-- 18号字体文字尺寸 -->
+    <dimen name="size_18_text">18sp</dimen>
+    <!-- 20号字体文字尺寸 -->
+    <dimen name="size_20_text">20sp</dimen>
+    <!-- 大字体文字尺寸 -->
+    <dimen name="big_text">24sp</dimen>
+
+
+    <!-- 分割线和边线大小 细 -->
+    <dimen name="div_size_thin">0.5dp</dimen>
+    <!-- 分割线和边线大小 粗 -->
+    <dimen name="div_size">1dp</dimen>
+    <!-- 输入框尺寸 -->
+    <dimen name="edit_text_height">50dp</dimen>
+    <!-- TAB高度 -->
+    <dimen name="tab_height">50dp</dimen>
+    <!-- HeadBar高度 -->
+    <dimen name="head_bar_height">45dp</dimen>
+    <!-- BottomBar高度 -->
+    <dimen name="bottom_bar_height">50dp</dimen>
+    <!-- 输入框整体高度 -->
+    <dimen name="input_group_height">50dp</dimen>
+    <!-- 输入框宽度，三个中文字符 -->
+    <dimen name="input_three_words_width">80dp</dimen>
+    <!-- checkbox的方框和文字的距离 -->
+    <dimen name="checkbox_pic_ch_dist">20dp</dimen>
+    
+    
+    <!-- 标题title大小 -->
+    <dimen name="title_text">18sp</dimen>
+    <!-- 列表item中，一级标题大小 -->
+    <dimen name="listview_item_first_title">14sp</dimen>
+    <!-- 列表item中，二级标题大小 -->
+    <dimen name="listview_item_second_title">12sp</dimen>
+
+    <!-- 列表页顶部tipsbar高度 -->
+    <dimen name="tips_bar_height">40dp</dimen>
+    
+    <!-- ============各界面统一样式========== -->
+    <!-- 用于导航、headerbar，大小类似QQ“联系人”标题大小 -->
+    <dimen name="text_size_18">18sp</dimen>
+    <!-- Button的文本大小，类似headerbar中的返回按钮 -->
+    <dimen name="text_size_17">17sp</dimen>
+    <!-- ListView item中，一级标题大小，类似最近联系人中的昵称 -->
+    <dimen name="text_size_16">16sp</dimen>
+    <!-- 正文的文字大小；ListView item中，二级标题大小，类似最近联系人中的最后一条聊天记录 -->
+    <dimen name="text_size_14">14sp</dimen>
+    <!-- 提示语文字大小，如Curton的文字样式 -->
+    <dimen name="text_size_13">13sp</dimen>
+    <!-- 在线状态，类似QQ中的“在线”2字 -->
+    <dimen name="text_size_11">11sp</dimen>
+    
+    <!-- 对话框最小高度 -->
+    <dimen name="alert_dialog_content_min_height">106dp</dimen>
+
+    <dimen name="alert_dialog_content_width">270dp</dimen>
+    
+    <dimen name="alert_dialog_content_margin_top">26dp</dimen>
+    
+    <dimen name="alert_dialog_content_margin_bottom">26dp</dimen>
+
+    <dimen name="alert_dialog_title_margin_bottom">3dp</dimen>
+    
+    <dimen name="alert_dialog_button_height">44dp</dimen>
+    <!--通用弹框的宽度-->
+    <dimen name="alert_dialog_width">325dp</dimen>
+    <!--通用弹框中取消、确认按钮宽度-->
+    <dimen name="alert_posivite_width">135dp</dimen>
+    <!--通用弹框中取消、确认按钮高度-->
+    <dimen name="alert_positive_height">42dp</dimen>
+
+    <dimen name="filter_height">40dp</dimen>
+
+    <dimen name="slide_card_top_margin">4dp</dimen>
+</resources>

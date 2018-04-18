@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:state_pressed="true" android:drawable="@color/light_background"/>
+    <item android:state_enabled="false" >
+        <shape>
+            <solid android:color="@color/light_background"/>
+            <stroke android:color="@color/dark_gray_background" android:width="1dp"/>
+        </shape>
+    </item>
+    <item android:state_selected="true" >
+        <shape>
+            <solid android:color="@color/light_background"/>
+            <stroke android:color="@color/colorAccent" android:width="1dp"/>
+        </shape>
+    </item>
+    <item android:drawable="@color/very_light_blue"/>
+</selector>

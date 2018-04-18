@@ -1,0 +1,43 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'realm-android'
+
+android {
+    compileSdkVersion 26
+    defaultConfig {
+        applicationId "com.wang.gvideo"
+        minSdkVersion 21
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled true
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    splits {
+        abi {
+            enable true
+            reset()
+            include 'armeabi',"arm64-v8a" //select ABIs to build APKs for
+            universalApk false //generate an additional APK that contains all the ABIs
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(":player")
+    api project(":gvideo-common")
+    kapt 'com.jakewharton:butterknife-compiler:8.4.0'
+    kapt 'com.google.dagger:dagger-android-processor:2.11'
+    kapt 'com.google.dagger:dagger-compiler:2.11'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation 'com.eminayar.panterdialog:panter-dialog:0.0.2.1'
+    implementation 'com.tapadoo.android:alerter:2.0.4'
+}

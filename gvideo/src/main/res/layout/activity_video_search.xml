@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/video_search_layout"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="@dimen/padding_15_dp"
+        android:layout_marginRight="@dimen/padding_15_dp"
+        android:translationZ="5dp"
+        android:background="@drawable/search_layout_background"
+        android:layout_height="45dp">
+        <EditText
+            android:id="@+id/video_search_text"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:inputType="textPersonName"
+            android:background="@color/transparent"
+            android:layout_marginLeft="10dp"
+            android:layout_gravity="center_vertical"
+            android:text=""
+            android:layout_weight="1"
+            android:imeOptions="actionSearch"
+            android:ems="10"/>
+        <ImageButton
+            android:src="@drawable/search_blue"
+            android:layout_width="23dp"
+            android:layout_height="23dp"
+            android:background="@color/transparent"
+            android:layout_gravity="center_vertical"
+            android:transitionName="transition"
+            android:layout_marginRight="15dp"
+            android:scaleType="centerInside"
+            android:id="@+id/video_search_bt"/>
+    </LinearLayout>
+    <android.support.v7.widget.RecyclerView
+        android:layout_marginTop="10dp"
+        android:id="@+id/video_search_result_list"
+        android:layout_below="@id/video_search_layout"
+        android:layout_marginLeft="@dimen/padding_15_dp"
+        android:layout_marginRight="@dimen/padding_15_dp"
+        android:layout_width="match_parent"
+        android:visibility="gone"
+        android:layout_height="match_parent">
+
+    </android.support.v7.widget.RecyclerView>
+
+    <ListView
+        android:layout_marginTop="10dp"
+        android:id="@+id/video_search_recom_list"
+        android:layout_below="@id/video_search_layout"
+        android:layout_marginLeft="@dimen/padding_15_dp"
+        android:layout_marginRight="@dimen/padding_15_dp"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+</RelativeLayout>
