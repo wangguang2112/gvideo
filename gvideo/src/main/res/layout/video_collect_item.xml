@@ -1,43 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:fresco="http://schemas.android.com/apk/res-auto"
-              android:orientation="vertical"
-              android:layout_width="120dp"
-              android:background="@color/white"
-              android:layout_height="100dp">
-    <FrameLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <com.facebook.drawee.view.SimpleDraweeView
-            android:id="@+id/video_history_image"
-            fresco:actualImageScaleType="centerInside"
-            fresco:failureImage="@android:drawable/ic_delete"
-            fresco:failureImageScaleType="focusCrop"
-            android:layout_width="120dp"
-            android:layout_height="80dp"/>
-        <TextView
-            android:id="@+id/video_history_precent"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/white"
-            android:textSize="@dimen/text_size_11"
-            android:layout_marginBottom="3dp"
-            android:layout_marginRight="3dp"
-            android:singleLine="true"
-            android:layout_gravity="bottom|right"
-            android:text="已观看70%"/>
-    </FrameLayout>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:fresco="http://schemas.android.com/apk/res-auto"
+                android:orientation="vertical"
+                android:padding="5dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="10dp"
+                android:layout_width="wrap_content"
+                android:background="@drawable/search_item_background"
+                android:layout_height="130dp">
+    <com.facebook.drawee.view.SimpleDraweeView
+        android:id="@+id/video_collect_item_icon"
+        fresco:actualImageScaleType="centerInside"
+        fresco:failureImage="@android:drawable/ic_delete"
+        fresco:failureImageScaleType="focusCrop"
+        android:layout_width="120dp"
+        android:layout_height="90dp"/>
 
     <TextView
-        android:id="@+id/video_history_name"
-        android:layout_width="match_parent"
+        android:id="@+id/video_collect_item_name"
+        android:layout_below="@id/video_collect_item_icon"
+        android:layout_marginRight="24dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/normal_text"
-        android:textSize="13sp"
-        android:layout_marginTop="2dp"
+        android:textSize="@dimen/text_size_16"
+        android:layout_marginTop="5dp"
         android:ellipsize="marquee"
         android:marqueeRepeatLimit="marquee_forever"
         android:singleLine="true"
         android:text="名字"/>
 
-</LinearLayout>
+    <TextView
+        android:id="@+id/video_collect_item_type"
+        android:layout_alignBottom="@id/video_collect_item_icon"
+        android:layout_marginLeft="93dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/normal_text"
+        android:textSize="12sp"
+        android:layout_marginTop="8dp"
+        android:maxLines="2"
+        android:text="类型"/>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/video_collect_season_list"
+        android:layout_width="150dp"
+        android:layout_toRightOf="@id/video_collect_item_icon"
+        android:layout_marginLeft="10dp"
+        android:visibility="visible"
+        android:layout_height="match_parent"/>
+
+
+</RelativeLayout>

@@ -23,7 +23,7 @@ import javax.inject.Inject
  * @author wangguang.
  */
 class CollectAdapter @Inject constructor(val context: Context, var collectList: MutableList<CollectListModel>,
-                                         var itemListener: ((View, CollectListModel,SeasonItem?, Int,Int) -> Unit))
+                                         var itemListener: ((View, CollectListModel, SeasonItem?, Int, Int) -> Unit))
     : RecyclerView.Adapter<CollectAdapter.CollectHolder>() {
 
 
@@ -32,29 +32,41 @@ class CollectAdapter @Inject constructor(val context: Context, var collectList: 
     }
 
     override fun onBindViewHolder(holder: CollectHolder?, position: Int) {
-//        historyList.safeGetRun(position) { current ->
-//            holder?.let { ho ->
-//                ho.iconView?.setImageURI(Uri.parse(current.image))
-//                ho.nameView?.text = current.name
-//                if (current.precent > 98) {
-//                    ho.precentView?.text = "已看完"
-//                } else {
-//                    ho.precentView?.text = "${current.precent}%"
-//                }
-//                ho.parent.setOnClickListener {
-//                    itemListener(ho.parent, current, position)
-//                }
-//            }
-//        }
+        collectList.safeGetRun(position) { current ->
+            holder?.let { ho ->
+                ho.iconView?.setImageURI(Uri.parse(current.imageH))
+                ho.nameView?.text = current.name
+                ho.typeView?.text = current.contType
+                ho.parent.setOnClickListener {
+                    itemListener(ho.parent, current, null, position, -1)
+                }
+                if (current.seasonNum.toInt() == 0) {
+                    ho.seasonView?.visibility = View.GONE
+                } else {
+                    if (ho.seasonAdapter == null) {
+                        val newAdapter = CollectSeasonAdapter(context, current.subList.toMutableList())
+                        newAdapter.onItemClick = { _, data, pos -> itemListener(ho.parent, current, data, position, pos) }
+                        ho.seasonView?.adapter = newAdapter
+                        ho.seasonAdapter = newAdapter
+                    } else {
+                        ho.seasonAdapter?.data?.clear()
+                        ho.seasonAdapter?.data?.addAll(current.subList)
+                        ho.seasonAdapter?.onItemClick = { _, data, pos -> itemListener(ho.parent, current, data, position, pos) }
+                        ho.seasonAdapter?.notifyDataSetChanged()
+                    }
+                }
+            }
+        }
     }
 
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): CollectHolder {
         val contentView = LayoutInflater.from(context).inflate(R.layout.video_collect_item, parent, false)
         var holder = CollectHolder(contentView)
-//        holder.iconView = contentView.findViewById(R.id.video_history_image) as SimpleDraweeView
-//        holder.nameView = contentView.findViewById(R.id.video_history_name) as TextView
-//        holder.precentView = contentView.findViewById(R.id.video_history_precent) as TextView
+        holder.iconView = contentView.findViewById(R.id.video_collect_item_icon) as SimpleDraweeView
+        holder.nameView = contentView.findViewById(R.id.video_collect_item_name) as TextView
+        holder.typeView = contentView.findViewById(R.id.video_collect_item_type) as TextView
+        holder.seasonView = contentView.findViewById(R.id.video_collect_season_list)
         return holder
     }
 
@@ -62,9 +74,10 @@ class CollectAdapter @Inject constructor(val context: Context, var collectList: 
         var iconView: SimpleDraweeView? = null
         var nameView: TextView? = null
         var parent: View = itemView
-        var precentView: TextView? = null
+        var typeView: TextView? = null
+        var seasonView: RecyclerView? = null
+        var seasonAdapter: CollectSeasonAdapter? = null
     }
-
 }
 
 
