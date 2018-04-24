@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit
 class CollectManager private constructor() {
 
     companion object {
-        val context: Context = App.app
+        private val context: Context = App.app
         var manager: CollectManager = CollectManager()
 
     }
@@ -65,7 +65,7 @@ class CollectManager private constructor() {
                 }
                 .flatMap { node ->
                     DataCenter.instance()
-                            .queryWithConditionSort(SeasonInfoDao::class, "", "")
+                            .queryWithConditionSort(SeasonInfoDao::class, "", node.contId)
                             .map { seasonList ->
                                 CollectListModel(node, seasonList)
                             }

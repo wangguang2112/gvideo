@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+          android:id="@+id/video_search_detail_text"
+          android:layout_width="30dp"
+          android:layout_height="30dp"
+          android:textColor="@color/down_text_color"
+          android:layout_marginBottom="5dp"
+          android:textSize="@dimen/text_size_14"
+          android:gravity="center"
+          android:background="@drawable/season_item_background"
+          android:text="1"/>

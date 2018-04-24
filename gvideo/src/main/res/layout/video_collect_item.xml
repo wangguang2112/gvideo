@@ -7,23 +7,29 @@
                 android:layout_marginRight="10dp"
                 android:layout_width="wrap_content"
                 android:background="@drawable/search_item_background"
-                android:layout_height="130dp">
+                android:layout_height="113dp">
     <com.facebook.drawee.view.SimpleDraweeView
         android:id="@+id/video_collect_item_icon"
         fresco:actualImageScaleType="centerInside"
         fresco:failureImage="@android:drawable/ic_delete"
         fresco:failureImageScaleType="focusCrop"
         android:layout_width="120dp"
-        android:layout_height="90dp"/>
+        android:layout_height="80dp"/>
 
+    <ImageView
+        android:id="@+id/video_collect_delete"
+        android:src="@drawable/delete"
+        android:layout_marginLeft="3dp"
+        android:layout_marginTop="3dp"
+        android:layout_width="15dp"
+        android:layout_height="15dp"/>
     <TextView
         android:id="@+id/video_collect_item_name"
         android:layout_below="@id/video_collect_item_icon"
-        android:layout_marginRight="24dp"
-        android:layout_width="wrap_content"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:textColor="@color/normal_text"
-        android:textSize="@dimen/text_size_16"
+        android:textSize="12sp"
         android:layout_marginTop="5dp"
         android:ellipsize="marquee"
         android:marqueeRepeatLimit="marquee_forever"
@@ -33,21 +39,23 @@
     <TextView
         android:id="@+id/video_collect_item_type"
         android:layout_alignBottom="@id/video_collect_item_icon"
-        android:layout_marginLeft="93dp"
+        android:layout_alignRight="@id/video_collect_item_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/normal_text"
-        android:textSize="12sp"
-        android:layout_marginTop="8dp"
-        android:maxLines="2"
+        android:textColor="@color/white"
+        android:layout_marginRight="2dp"
+        android:gravity="center"
+        android:textSize="11sp"
+        android:maxLines="1"
         android:text="类型"/>
     <android.support.v7.widget.RecyclerView
         android:id="@+id/video_collect_season_list"
         android:layout_width="150dp"
-        android:layout_toRightOf="@id/video_collect_item_icon"
-        android:layout_marginLeft="10dp"
         android:visibility="visible"
-        android:layout_height="match_parent"/>
+        android:layout_height="103dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="10dp"
+        android:layout_toRightOf="@id/video_collect_item_icon"/>
 
 
 </RelativeLayout>

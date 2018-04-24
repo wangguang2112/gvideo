@@ -41,7 +41,7 @@ fun <T : RealmObject> Realm._queryList(cls: Class<T>): Observable<List<T>> {
  * @param cls Dao实体类
  */
 
-fun <T : RealmObject> Realm._querySortedCondition(cls: Class<T>, sort: String, condition: String, conditionKey: String, sortOrder: Sort): Observable<List<T>> {
+fun <T : RealmObject> Realm._querySortedCondition(cls: Class<T>, sort: String, conditionKey: String, condition: String, sortOrder: Sort): Observable<List<T>> {
     val middle = if (condition.isNotEmpty() && conditionKey.isNotEmpty()) {
         this.where(cls).equalTo(conditionKey, condition)
     } else {

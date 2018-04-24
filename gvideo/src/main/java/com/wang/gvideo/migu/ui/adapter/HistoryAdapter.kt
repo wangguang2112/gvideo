@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import com.facebook.drawee.view.SimpleDraweeView
 import com.wang.gvideo.R
@@ -24,6 +25,9 @@ class HistoryAdapter @Inject constructor(val context: Context, var historyList: 
                                          var itemListener: ((View, ViewVideoDao, Int) -> Unit))
     : RecyclerView.Adapter<HistoryAdapter.HistoryHolder>() {
 
+    var showDelete = false
+
+    var deleteListner: ((View, ViewVideoDao, Int) -> Unit)? = null
 
     override fun getItemCount(): Int {
         return historyList?.size.nil { 0 }
@@ -40,7 +44,27 @@ class HistoryAdapter @Inject constructor(val context: Context, var historyList: 
                     ho.precentView?.text = "${current.precent}%"
                 }
                 ho.parent.setOnClickListener {
+                    if(showDelete) {
+                        showDelete = false
+                        notifyDataSetChanged()
+                    }
                     itemListener(ho.parent, current, position)
+                }
+                ho.parent.setOnLongClickListener {
+                    if(!showDelete){
+                        showDelete = true
+                        notifyDataSetChanged()
+                        return@setOnLongClickListener true
+                    }
+                    return@setOnLongClickListener false
+                }
+                if (showDelete) {
+                    ho.deleteView?.visibility = View.VISIBLE
+                    ho.deleteView?.setOnClickListener {
+                        deleteListner?.invoke(it, current, position)
+                    }
+                } else {
+                    ho.deleteView?.visibility = View.GONE
                 }
             }
         }
@@ -50,9 +74,10 @@ class HistoryAdapter @Inject constructor(val context: Context, var historyList: 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): HistoryHolder {
         val contentView = LayoutInflater.from(context).inflate(R.layout.video_history_item, parent, false)
         var holder = HistoryHolder(contentView)
-        holder.iconView = contentView.findViewById(R.id.video_history_image) as SimpleDraweeView
-        holder.nameView = contentView.findViewById(R.id.video_history_name) as TextView
-        holder.precentView = contentView.findViewById(R.id.video_history_precent) as TextView
+        holder.iconView = contentView.findViewById(R.id.video_history_image)
+        holder.nameView = contentView.findViewById(R.id.video_history_name)
+        holder.precentView = contentView.findViewById(R.id.video_history_precent)
+        holder.deleteView = contentView.findViewById(R.id.video_history_delete)
         return holder
     }
 
@@ -61,6 +86,8 @@ class HistoryAdapter @Inject constructor(val context: Context, var historyList: 
         var nameView: TextView? = null
         var parent: View = itemView
         var precentView: TextView? = null
+        var deleteView: ImageView? = null
+
     }
 
 }

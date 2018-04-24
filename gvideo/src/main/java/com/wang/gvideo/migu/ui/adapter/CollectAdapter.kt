@@ -2,13 +2,17 @@ package com.wang.gvideo.migu.ui.adapter
 
 import android.content.Context
 import android.net.Uri
+import android.support.v7.widget.GridLayoutManager
+import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import com.facebook.drawee.view.SimpleDraweeView
 import com.wang.gvideo.R
+import com.wang.gvideo.common.utils.empty
 import com.wang.gvideo.common.utils.nil
 import com.wang.gvideo.common.utils.safeGetRun
 import com.wang.gvideo.migu.dao.model.ViewVideoDao
@@ -26,6 +30,9 @@ class CollectAdapter @Inject constructor(val context: Context, var collectList: 
                                          var itemListener: ((View, CollectListModel, SeasonItem?, Int, Int) -> Unit))
     : RecyclerView.Adapter<CollectAdapter.CollectHolder>() {
 
+    var showDelete = false
+
+    var deleteListner: ((View, CollectListModel, Int) -> Unit)? = null
 
     override fun getItemCount(): Int {
         return collectList?.size.nil { 0 }
@@ -40,9 +47,10 @@ class CollectAdapter @Inject constructor(val context: Context, var collectList: 
                 ho.parent.setOnClickListener {
                     itemListener(ho.parent, current, null, position, -1)
                 }
-                if (current.seasonNum.toInt() == 0) {
+                if (current.seasonNum.toInt() == 0 || current.subList.empty()) {
                     ho.seasonView?.visibility = View.GONE
                 } else {
+                    ho.seasonView?.visibility = View.VISIBLE
                     if (ho.seasonAdapter == null) {
                         val newAdapter = CollectSeasonAdapter(context, current.subList.toMutableList())
                         newAdapter.onItemClick = { _, data, pos -> itemListener(ho.parent, current, data, position, pos) }
@@ -54,6 +62,22 @@ class CollectAdapter @Inject constructor(val context: Context, var collectList: 
                         ho.seasonAdapter?.onItemClick = { _, data, pos -> itemListener(ho.parent, current, data, position, pos) }
                         ho.seasonAdapter?.notifyDataSetChanged()
                     }
+                }
+                ho.parent.setOnLongClickListener {
+                    if(!showDelete){
+                        showDelete = true
+                        notifyDataSetChanged()
+                        return@setOnLongClickListener true
+                    }
+                    return@setOnLongClickListener false
+                }
+                if (showDelete) {
+                    ho.deleteView?.visibility = View.VISIBLE
+                    ho.deleteView?.setOnClickListener {
+                        deleteListner?.invoke(it, current, position)
+                    }
+                } else {
+                    ho.deleteView?.visibility = View.GONE
                 }
             }
         }
@@ -67,6 +91,9 @@ class CollectAdapter @Inject constructor(val context: Context, var collectList: 
         holder.nameView = contentView.findViewById(R.id.video_collect_item_name) as TextView
         holder.typeView = contentView.findViewById(R.id.video_collect_item_type) as TextView
         holder.seasonView = contentView.findViewById(R.id.video_collect_season_list)
+        holder.deleteView = contentView.findViewById(R.id.video_collect_delete)
+        holder.seasonView?.layoutManager = GridLayoutManager(context,4,LinearLayoutManager.VERTICAL,false)
+        holder.seasonView?.overScrollMode = View.OVER_SCROLL_NEVER
         return holder
     }
 
@@ -77,6 +104,7 @@ class CollectAdapter @Inject constructor(val context: Context, var collectList: 
         var typeView: TextView? = null
         var seasonView: RecyclerView? = null
         var seasonAdapter: CollectSeasonAdapter? = null
+        var deleteView: ImageView? = null
     }
 }
 

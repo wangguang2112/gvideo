@@ -20,7 +20,7 @@ class CollectSeasonAdapter(val context: Context, var data: MutableList<SeasonIte
     var onItemClick: ((View, SeasonItem, Int) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): SelectDownHolder {
-        val view = LayoutInflater.from(context).inflate(R.layout.video_download_season_text, parent, false)
+        val view = LayoutInflater.from(context).inflate(R.layout.video_collect_season_text, parent, false)
         val holder = SelectDownHolder(view)
         holder.titleView = view.findViewById(R.id.video_search_detail_text)
         return holder

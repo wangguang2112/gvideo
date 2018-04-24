@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.support.v7.app.ActionBar
 import android.support.v7.widget.LinearLayoutManager
 import android.transition.Fade
+import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.Toast
@@ -18,6 +19,7 @@ import com.wang.gvideo.common.base.BaseActivity
 import com.wang.gvideo.common.bus.RxBus
 import com.wang.gvideo.common.dao.DataCenter
 import com.wang.gvideo.common.utils.nil
+import com.wang.gvideo.common.utils.string
 import com.wang.gvideo.migu.constant.BusKey
 import com.wang.gvideo.migu.dao.CollectManager
 import com.wang.gvideo.migu.dao.model.VideoInfoDao
@@ -86,8 +88,13 @@ class VideoFirstAcitivity : BaseActivity() {
                     .subscribe {
                         if (it.isNotEmpty()) {
                             if (historyAdapter == null) {
-                                historyAdapter = HistoryAdapter(this, it.toMutableList()) { _,data,childPos ->
-                                    VideoPlayPresenter.startSingleVideoWithPos(this@VideoFirstAcitivity, data?.contId,data.postion)
+                                historyAdapter = HistoryAdapter(this, it.toMutableList()) { _, data, childPos ->
+                                    VideoPlayPresenter.startSingleVideoWithPos(this@VideoFirstAcitivity, data?.contId, data.postion)
+                                }
+                                historyAdapter?.deleteListner = { _, data, childPos ->
+                                    deleteHistory(data.contId)
+                                    historyAdapter?.historyList?.removeAt(childPos)
+                                    historyAdapter?.notifyItemRemoved(childPos)
                                 }
                                 video_first_history_list.adapter = historyAdapter
                             } else {
@@ -120,11 +127,17 @@ class VideoFirstAcitivity : BaseActivity() {
                     }
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe {
+                        Log.d(TAG, it.string())
                         if (it.isNotEmpty()) {
                             if (collectAdapter == null) {
                                 collectAdapter = CollectAdapter(this, it.toMutableList()) { _, parent, data, _, childPos ->
                                     VideoPlayPresenter.startListVideoPlay(this@VideoFirstAcitivity, data?.contId ?: parent.contId,
                                             parent.subList.map { it.changePair() }, childPos)
+                                }
+                                collectAdapter?.deleteListner = { _, data, childPos ->
+                                    deleteCollect(data.contId)
+                                    collectAdapter?.collectList?.removeAt(childPos)
+                                    collectAdapter?.notifyItemRemoved(childPos)
                                 }
                                 video_first_collect_list.adapter = collectAdapter
                             } else {
@@ -189,6 +202,14 @@ class VideoFirstAcitivity : BaseActivity() {
         }
     }
 
+    private fun deleteHistory(conId: String) {
+        DataCenter.instance().delete(ViewVideoDao::class, conId)
+    }
+
+    private fun deleteCollect(conId: String) {
+        CollectManager.manager.unCollectSeasonVideo(conId)
+    }
+
     override fun onResume() {
         super.onResume()
         if (isNeedRefreshHistory) {
@@ -200,5 +221,26 @@ class VideoFirstAcitivity : BaseActivity() {
             isNeedRefreshCollect = false
         }
     }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            var result = false
+            if (historyAdapter?.showDelete == true) {
+                historyAdapter?.showDelete = false
+                historyAdapter?.notifyDataSetChanged()
+                result = true
+            }
+            if (collectAdapter?.showDelete == true) {
+                collectAdapter?.showDelete = false
+                collectAdapter?.notifyDataSetChanged()
+                result = true
+            }
+            if (result) {
+                return result
+            }
+        }
+        return super.onKeyDown(keyCode, event)
+    }
+
 
 }

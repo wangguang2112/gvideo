@@ -70,5 +70,20 @@ open class VideoInfoDao(@PrimaryKey var contId: String,
         return "VideoInfoDao(contId='$contId', name='$name', image='$image', time='$time')"
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is VideoInfoDao) return false
+
+        if (contId != other.contId) return false
+        if (name != other.name) return false
+        if (image != other.image) return false
+        if (time != other.time) return false
+        if (extend1 != other.extend1) return false
+        if (extend2 != other.extend2) return false
+        if (extend3 != other.extend3) return false
+
+        return true
+    }
+
 
 }

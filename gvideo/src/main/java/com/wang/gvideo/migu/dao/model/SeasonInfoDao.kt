@@ -65,5 +65,8 @@ open class SeasonInfoDao(@PrimaryKey var contId: String, var name: String, var n
         return "SeasonInfoDao(contId='$contId', name='$name', nodeid='$nodeid')"
     }
 
+    override fun equals(other: Any?): Boolean {
+        return other is SeasonInfoDao && contId == other.contId && name == name && nodeid == nodeid
+    }
 
 }

@@ -12,10 +12,12 @@ import android.widget.Toast
 import com.facebook.drawee.view.SimpleDraweeView
 import com.wang.gvideo.R
 import com.wang.gvideo.common.base.BaseActivity
+import com.wang.gvideo.common.bus.RxBus
 import com.wang.gvideo.common.net.OneSubScriber
 import com.wang.gvideo.common.utils.empty
 import com.wang.gvideo.common.utils.nil
 import com.wang.gvideo.common.view.HorizontalListView
+import com.wang.gvideo.migu.constant.BusKey
 import com.wang.gvideo.migu.dao.CollectManager
 import com.wang.gvideo.migu.model.*
 import com.wang.gvideo.migu.ui.OnVideoItemClickListener
@@ -71,6 +73,7 @@ class VideoListAdapter @Inject constructor(private val context: Context) : Recyc
                         } else {
                             holder.collectView?.isSelected = false
                             currentItem.isCollect = false
+                            RxBus.instance().postEmptyEvent(BusKey.UPDATE_COLLECT_LIST)
                             Toast.makeText(context, "删除收藏成功", Toast.LENGTH_SHORT).show()
                         }
                     } else {
@@ -80,6 +83,7 @@ class VideoListAdapter @Inject constructor(private val context: Context) : Recyc
                             Toast.makeText(context, "收藏成功", Toast.LENGTH_SHORT).show()
                             holder.collectView?.isSelected = true
                             currentItem.isCollect = true
+                            RxBus.instance().postEmptyEvent(BusKey.UPDATE_COLLECT_LIST)
                         } else {
                             Toast.makeText(context, "收藏失败", Toast.LENGTH_SHORT).show()
                         }
@@ -144,6 +148,7 @@ class VideoListAdapter @Inject constructor(private val context: Context) : Recyc
                             currentItem.isCollect = false
                             holder.collectView?.isSelected = false
                             Toast.makeText(context, "删除收藏成功", Toast.LENGTH_SHORT).show()
+                            RxBus.instance().postEmptyEvent(BusKey.UPDATE_COLLECT_LIST)
                         }
                     } else {
                         CollectManager.manager.collectSeasonVideo(currentItem, AppSearchListItem.getDaoAdapter(),
@@ -152,6 +157,7 @@ class VideoListAdapter @Inject constructor(private val context: Context) : Recyc
                             Toast.makeText(context, "收藏成功", Toast.LENGTH_SHORT).show()
                             holder.collectView?.isSelected = true
                             currentItem.isCollect = true
+                            RxBus.instance().postEmptyEvent(BusKey.UPDATE_COLLECT_LIST)
                         } else {
                             Toast.makeText(context, "收藏失败", Toast.LENGTH_SHORT).show()
                         }
