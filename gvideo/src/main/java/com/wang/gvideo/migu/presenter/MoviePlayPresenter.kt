@@ -1,8 +1,5 @@
 package com.wang.gvideo.migu.presenter
 
-import android.content.Context
-import android.content.Intent
-import android.util.Base64
 import android.util.Log
 import android.widget.Toast
 import com.leo.player.media.IjkVideoManager
@@ -16,26 +13,23 @@ import com.wang.gvideo.common.net.OneSubScriber
 import com.wang.gvideo.common.utils.empty
 import com.wang.gvideo.common.utils.nil
 import com.wang.gvideo.common.utils.safeGetRun
-import com.wang.gvideo.migu.api.WapMiGuInter
+import com.wang.gvideo.migu.api.MiGuMovieInter
 import com.wang.gvideo.migu.cache.CacheManager
 import com.wang.gvideo.migu.constant.BusKey
 import com.wang.gvideo.migu.dao.model.ViewVideoDao
-import com.wang.gvideo.migu.model.VideoInfoModel
+import com.wang.gvideo.migu.model.MovieInfoModel
 import com.wang.gvideo.migu.setting.Prefences
-import com.wang.gvideo.migu.ui.dialog.SelectDefinitionDialog
-import com.wang.gvideo.migu.ui.dialog.SelectDownloadDialog
-import com.wang.gvideo.migu.ui.dialog.SelectSeasonDialog
 import com.wang.gvideo.migu.ui.VideoPlayActivity
 import com.wang.gvideo.migu.ui.VideoPlayHelper.VIDEO_CONT_ID
 import com.wang.gvideo.migu.ui.VideoPlayHelper.VIDEO_CONT_ID_POS
 import com.wang.gvideo.migu.ui.VideoPlayHelper.VIDEO_CONT_PLAY_POS
 import com.wang.gvideo.migu.ui.VideoPlayHelper.VIDEO_CONT_SEASON_IDS
+import com.wang.gvideo.migu.ui.dialog.SelectDownloadDialog
+import com.wang.gvideo.migu.ui.dialog.SelectMovieDefiDialog
+import com.wang.gvideo.migu.ui.dialog.SelectSeasonDialog
+import org.apache.commons.lang3.StringEscapeUtils
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
-import java.net.URLDecoder
-import javax.crypto.Cipher
-import javax.crypto.SecretKeyFactory
-import javax.crypto.spec.DESKeySpec
 import javax.inject.Inject
 
 /**
@@ -44,9 +38,9 @@ import javax.inject.Inject
  *
  * @author wangguang.
  */
-class VideoPlayPresenter @Inject constructor(activity: VideoPlayActivity) : BasePresenter<VideoPlayActivity>(activity), OnMoreInfoClickListener, StateChangeListener {
+class MoviePlayPresenter @Inject constructor(activity: VideoPlayActivity) : BasePresenter<VideoPlayActivity>(activity), OnMoreInfoClickListener, StateChangeListener {
 
-    var infoModel: VideoInfoModel? = null
+    var infoModel: MovieInfoModel? = null
     var seasonList: List<Pair<String, String>>? = null
     var position = 0
     var playPosition = 0
@@ -72,13 +66,16 @@ class VideoPlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
     }
 
     private fun showSelectDefinitionDialog() {
-        SelectDefinitionDialog(activity)
-                .setSelectListener { pos, url ->
-                    Log.d(TAG, "pos" + pos)
-                    activity.changeDefinition(VideoInfoModel.definitionName(pos), url)
-                    Prefences.selectDefiniitionPrefence(pos)
+        SelectMovieDefiDialog(activity)
+                .setSelectListener { rate ->
+                    Log.d(TAG, "rate" + rate)
+                    infoModel?.let {
+                        getVideoInfo(it.contentId,rate)
+                        Prefences.selectDefiniitionRate(rate)
+                    }
                 }
-                .setModel(infoModel)
+                .setModel(infoModel?.getSupportRate()?: listOf())
+                .selectRate(infoModel?.rate?:50)
                 .show()
     }
 
@@ -110,36 +107,33 @@ class VideoPlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
         }
     }
 
-    private fun getVideoInfo(contId: String) {
-        val s = ApiFactory.INSTANCE()
-                .createApiWithCookie(WapMiGuInter::class.java,
-                        ApiFactory.createCookie("www.miguvideo.com", "UserInfo", "982324173|772E524A40FA31D9F78D"))
-                .getVideoInfo(contId)
+
+
+    private fun getVideoInfo(contId: String,requestRate:Int = Prefences.getDefiniitionRate()) {
+        val s = doHttp(MiGuMovieInter::class.java)
+                .getMovieData(contId,requestRate)
                 .subscribeOn(Schedulers.io())
                 .map {
-                    it[0]
+                    val result = it.replace(Regex(",[\\s]*\\}|,[\\s]*\\]")) {
+                        if (it.value.takeLast(1) == "}") {
+                            "}"
+                        } else {
+                            "]"
+                        }
+                    }
+                    ApiFactory.INSTANCE().getGson().fromJson(result, MovieInfoModel::class.java)
                 }
-                .map {
-                    val newModel = it.copy()
-                    val key = VideoInfoModel.getKey(it.func)
-                    newModel.playList.play1 = getRealUrl(it.playList.play1, key)
-                    newModel.playList.play2 = getRealUrl(it.playList.play2, key)
-                    newModel.playList.play3 = getRealUrl(it.playList.play3, key)
-                    newModel.playList.play4 = getRealUrl(it.playList.play4, key)
-                    newModel.playList.play5 = getRealUrl(it.playList.play5, key)
-                    newModel.pilotPlayList.play41 = getRealUrl(it.pilotPlayList.play41, key)
-                    newModel.pilotPlayList.play42 = getRealUrl(it.pilotPlayList.play42, key)
-                    newModel.pilotPlayList.play43 = getRealUrl(it.pilotPlayList.play43, key)
-                    newModel.pilotPlayList.play44 = getRealUrl(it.pilotPlayList.play44, key)
-                    newModel.pilotPlayList.play45 = getRealUrl(it.pilotPlayList.play45, key)
-                    newModel
+                .doOnNext {
+                    //去除&amp;
+                    it.playUrl = StringEscapeUtils.unescapeHtml4(it.playUrl)
                 }
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnTerminate { setOnBusy(false) }
-                .subscribe(object : OneSubScriber<VideoInfoModel>() {
-                    override fun onNext(t: VideoInfoModel) {
+                .subscribe(object : OneSubScriber<MovieInfoModel>() {
+                    override fun onNext(t: MovieInfoModel) {
                         super.onNext(t)
                         infoModel = t
+                        infoModel?.rate = infoModel?.selectSupportRate(requestRate)?:50
                         //使用内置的分集
                         if(seasonList == null){
                             seasonList = infoModel?.getSeasonPairs()
@@ -152,33 +146,16 @@ class VideoPlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
                                 }
                             }
                         }
-                        val url = t.definitionUrl(Prefences.getDefiniitionPrefence()) {
-                            infoModel?.definPos = it
-                        }
+                        val url = t.playUrl
                         Log.d(TAG, url)
-                        activity.startPlay(t.name, url, VideoInfoModel.definitionName(infoModel?.definPos ?: 0),playPosition)
+                        activity.startPlay(t.titleName, url, MovieInfoModel.definitionName(t.rate),playPosition)
                         playPosition = 0
                     }
                 })
         addSubscription(s)
     }
 
-    private fun getRealUrl(content: String, key: String): String {
-        if (content.isNotEmpty()) {
-            return URLDecoder.decode(decrypt(content, key))
-        } else {
-            return ""
-        }
 
-    }
-
-    private fun decrypt(content: String, key: String): String {
-        val cipher = Cipher.getInstance("DES/ECB/PKCS7Padding")
-        val spec = DESKeySpec(key.toByteArray())
-        val keys = SecretKeyFactory.getInstance("DES").generateSecret(spec)
-        cipher.init(Cipher.DECRYPT_MODE, keys)
-        return String(cipher.doFinal(Base64.decode(content, 0)))
-    }
 
     override fun notifyPlayState(statue: Int) {
         if (statue == IjkVideoManager.STATE_PLAYBACK_COMPLETED) {
@@ -208,11 +185,11 @@ class VideoPlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
             val prec = if(all == 0){0}else{ pos * 100 /all}
             //大于95的 统统去掉
             if(prec in 1..100) {
-                val info = ViewVideoDao(it.contId, it.name, it.imgH, pos, prec,System.currentTimeMillis())
+                val info = ViewVideoDao(it.contentId, it.titleName, it.srcH, pos, prec,System.currentTimeMillis())
                 DataCenter.instance().insert(info)
                 RxBus.instance().postEmptyEvent(BusKey.UPDATE_HISTORY_LIST)
             }else if(prec == 0 && pos > 0){
-                val info = ViewVideoDao(it.contId, it.name, it.imgH, pos, prec,System.currentTimeMillis())
+                val info = ViewVideoDao(it.contentId, it.titleName, it.srcH, pos, prec,System.currentTimeMillis())
                 DataCenter.instance().insert(info)
                 RxBus.instance().postEmptyEvent(BusKey.UPDATE_HISTORY_LIST)
             }

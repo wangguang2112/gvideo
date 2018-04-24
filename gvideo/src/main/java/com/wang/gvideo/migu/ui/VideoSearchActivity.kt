@@ -7,11 +7,13 @@ import android.util.Log
 import android.view.View
 import android.view.Window
 import android.view.inputmethod.EditorInfo
-import android.widget.*
+import android.widget.ArrayAdapter
+import android.widget.EditText
+import android.widget.ListView
+import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
-import com.google.gson.Gson
 import com.wang.gvideo.R
 import com.wang.gvideo.common.base.BaseActivity
 import com.wang.gvideo.common.net.ApiFactory
@@ -27,7 +29,6 @@ import com.wang.gvideo.migu.dao.CollectManager
 import com.wang.gvideo.migu.model.AppSearchListItem
 import com.wang.gvideo.migu.model.AppSeasonItem
 import com.wang.gvideo.migu.model.AppVideoListInfo
-import com.wang.gvideo.migu.presenter.VideoPlayPresenter
 import com.wang.gvideo.migu.ui.adapter.VideoListAdapter
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
@@ -73,10 +74,10 @@ class VideoSearchActivity : BaseActivity() {
 
         mResultListAdatper.itemListener = { _, _, pos, parent, season ->
             if (parent.subList.empty()) {
-                VideoPlayPresenter.startSingleVideoPlay(this@VideoSearchActivity,
+                VideoPlayHelper.startSingleVideoPlay(this@VideoSearchActivity,
                         AppSearchListItem.getContId(season?.param ?: parent.contParam))
             } else {
-                VideoPlayPresenter.startListVideoPlay(this@VideoSearchActivity,
+                VideoPlayHelper.startListVideoPlay(this@VideoSearchActivity,
                         AppSearchListItem.getContId(season?.param ?: parent.contParam), parent.getSeasonPairs(), pos)
             }
         }

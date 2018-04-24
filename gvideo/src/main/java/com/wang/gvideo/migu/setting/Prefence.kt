@@ -10,6 +10,7 @@ import com.wang.gvideo.common.utils.SharedPreferencesUtil
  */
 object Prefences {
     const val DEFINIITION_PREFENCE_KEY = "definiition_prefence_key"
+    const val DEFINIITION_RATE_PREFENCE_KEY = "definiition_rate_prefence_key"
 
     fun selectDefiniitionPrefence(pos: Int) {
         SharedPreferencesUtil.instance.setInt(DEFINIITION_PREFENCE_KEY, pos)
@@ -17,6 +18,14 @@ object Prefences {
 
     fun getDefiniitionPrefence(): Int {
         return SharedPreferencesUtil.instance.getInt(DEFINIITION_PREFENCE_KEY, 0)
+    }
+
+    fun selectDefiniitionRate(rate: Int) {
+        SharedPreferencesUtil.instance.setInt(DEFINIITION_RATE_PREFENCE_KEY, rate)
+    }
+
+    fun getDefiniitionRate(): Int {
+        return SharedPreferencesUtil.instance.getInt(DEFINIITION_RATE_PREFENCE_KEY, 50)
     }
 
 }

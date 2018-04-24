@@ -52,7 +52,8 @@ class ApiFactory private constructor() {
                     .readTimeout(30, TimeUnit.SECONDS)
                     .writeTimeout(30, TimeUnit.SECONDS)
                     .addInterceptor {
-                        it.proceed(it.request())
+                        val reqBuider = it.request().newBuilder().addHeader("X_UP_CLIENT_CHANNEL_ID", "64000014-99000-800000200000002")
+                        it.proceed(reqBuider.build())
                     }
                     .cookieJar(cookieJar)
                     .build()!!
@@ -84,7 +85,7 @@ class ApiFactory private constructor() {
         return temp
     }
 
-    fun getGson():Gson{
+    fun getGson(): Gson {
         val gsonBuilder = GsonBuilder()
         gsonBuilder.setLenient()
         gsonBuilder.registerTypeAdapterFactory(ListAdapterFactory())

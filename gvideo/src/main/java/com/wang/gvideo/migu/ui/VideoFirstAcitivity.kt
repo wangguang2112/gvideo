@@ -22,9 +22,7 @@ import com.wang.gvideo.common.utils.nil
 import com.wang.gvideo.common.utils.string
 import com.wang.gvideo.migu.constant.BusKey
 import com.wang.gvideo.migu.dao.CollectManager
-import com.wang.gvideo.migu.dao.model.VideoInfoDao
 import com.wang.gvideo.migu.dao.model.ViewVideoDao
-import com.wang.gvideo.migu.presenter.VideoPlayPresenter
 import com.wang.gvideo.migu.ui.adapter.CollectAdapter
 import com.wang.gvideo.migu.ui.adapter.HistoryAdapter
 import kotlinx.android.synthetic.main.activity_video_first.*
@@ -89,7 +87,7 @@ class VideoFirstAcitivity : BaseActivity() {
                         if (it.isNotEmpty()) {
                             if (historyAdapter == null) {
                                 historyAdapter = HistoryAdapter(this, it.toMutableList()) { _, data, childPos ->
-                                    VideoPlayPresenter.startSingleVideoWithPos(this@VideoFirstAcitivity, data?.contId, data.postion)
+                                    VideoPlayHelper.startSingleVideoWithPos(this@VideoFirstAcitivity, data?.contId, data.postion)
                                 }
                                 historyAdapter?.deleteListner = { _, data, childPos ->
                                     deleteHistory(data.contId)
@@ -131,7 +129,7 @@ class VideoFirstAcitivity : BaseActivity() {
                         if (it.isNotEmpty()) {
                             if (collectAdapter == null) {
                                 collectAdapter = CollectAdapter(this, it.toMutableList()) { _, parent, data, _, childPos ->
-                                    VideoPlayPresenter.startListVideoPlay(this@VideoFirstAcitivity, data?.contId ?: parent.contId,
+                                    VideoPlayHelper.startListVideoPlay(this@VideoFirstAcitivity, data?.contId ?: parent.contId,
                                             parent.subList.map { it.changePair() }, childPos)
                                 }
                                 collectAdapter?.deleteListner = { _, data, childPos ->
@@ -173,7 +171,7 @@ class VideoFirstAcitivity : BaseActivity() {
                         .setDialogType(DialogType.INPUT)
                         .withAnimation(Animation.DEFAULT)
                         .input { text ->
-                            text.toIntOrNull()?.let { VideoPlayPresenter.startSingleVideoPlay(this@VideoFirstAcitivity, it.toString()) }.nil {
+                            text.toIntOrNull()?.let { VideoPlayHelper.startSingleVideoPlay(this@VideoFirstAcitivity, it.toString()) }.nil {
                                 Alerter.create(this@VideoFirstAcitivity)
                                         .setTitle("提示")
                                         .setText("请输入正确的cid")

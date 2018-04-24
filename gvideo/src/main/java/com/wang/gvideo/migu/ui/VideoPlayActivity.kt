@@ -3,22 +3,19 @@ package com.wang.gvideo.migu.ui
 import android.os.Bundle
 import android.util.Log
 import android.view.WindowManager
-import android.widget.Toast
 import com.leo.player.media.IjkVideoManager
 import com.leo.player.media.controller.MediaController
-import com.leo.player.media.controller.OnMoreInfoClickListener
 import com.wang.gvideo.R
 import com.wang.gvideo.common.base.BaseActivity
 import com.wang.gvideo.migu.component.DaggerVideoComponent
-import com.wang.gvideo.migu.model.VideoInfoModel
-import com.wang.gvideo.migu.presenter.VideoPlayPresenter
+import com.wang.gvideo.migu.presenter.MoviePlayPresenter
 import kotlinx.android.synthetic.main.activity_video_play.*
 import javax.inject.Inject
 
 class VideoPlayActivity : BaseActivity() {
 
     @Inject
-    lateinit var presenter: VideoPlayPresenter
+    lateinit var presenter: MoviePlayPresenter
 
     lateinit var controller: MediaController
 
@@ -80,8 +77,8 @@ class VideoPlayActivity : BaseActivity() {
         }
     }
 
-    fun changeDefinition(newD: Int, url: String) {
-        controller.setDefinition(VideoInfoModel.definitionName(newD))
+    fun changeDefinition(definition: String, url: String) {
+        controller.setDefinition(definition)
         var lastPosition = IjkVideoManager.getInstance().currentPosition
 //        IjkVideoManager.getInstance().pause()
         IjkVideoManager.getInstance().release()
