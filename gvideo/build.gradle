@@ -38,6 +38,5 @@ dependencies {
     kapt 'com.google.dagger:dagger-android-processor:2.11'
     kapt 'com.google.dagger:dagger-compiler:2.11'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
-    implementation 'com.eminayar.panterdialog:panter-dialog:0.0.2.1'
     implementation 'com.tapadoo.android:alerter:2.0.4'
 }

@@ -263,7 +263,7 @@ class HorizontalListView(context: Context, attrs: AttributeSet) : AdapterView<Li
     /** Registers the gesture detector to receive gesture notifications for this view  */
     private fun bindGestureDetector() {
         // Generic touch listener that can be applied to any view that needs to process gestures
-        val gestureListenerHandler = OnTouchListener { v, event ->
+        val gestureListenerHandler = OnTouchListener { _, event ->
             // Delegate the touch event to our gesture detector
             mGestureDetector.onTouchEvent(event)
         }
@@ -724,8 +724,8 @@ class HorizontalListView(context: Context, attrs: AttributeSet) : AdapterView<Li
         }
     }
 
-    private fun fillListRight(rightEdge: Int, dx: Int) {
-        var rightEdge = rightEdge
+    private fun fillListRight(pRightEdge: Int, dx: Int) {
+        var rightEdge = pRightEdge
         // Loop adding views to the right until the screen is filled
         while (rightEdge + dx + mDividerWidth < width && mRightViewAdapterIndex + 1 < mAdapter!!.count) {
             mRightViewAdapterIndex++
@@ -747,8 +747,8 @@ class HorizontalListView(context: Context, attrs: AttributeSet) : AdapterView<Li
         }
     }
 
-    private fun fillListLeft(leftEdge: Int, dx: Int) {
-        var leftEdge = leftEdge
+    private fun fillListLeft(pLeftEdge: Int, dx: Int) {
+        var leftEdge = pLeftEdge
         // Loop adding views to the left until the screen is filled
         while (leftEdge + dx - mDividerWidth > 0 && mLeftViewAdapterIndex >= 1) {
             mLeftViewAdapterIndex--

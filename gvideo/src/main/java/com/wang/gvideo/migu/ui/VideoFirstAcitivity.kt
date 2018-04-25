@@ -10,9 +10,6 @@ import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.Toast
-import com.eminayar.panter.DialogType
-import com.eminayar.panter.PanterDialog
-import com.eminayar.panter.enums.Animation
 import com.tapadoo.alerter.Alerter
 import com.wang.gvideo.R
 import com.wang.gvideo.common.base.BaseActivity
@@ -20,6 +17,7 @@ import com.wang.gvideo.common.bus.RxBus
 import com.wang.gvideo.common.dao.DataCenter
 import com.wang.gvideo.common.utils.nil
 import com.wang.gvideo.common.utils.string
+import com.wang.gvideo.common.view.alert.AlertView
 import com.wang.gvideo.migu.constant.BusKey
 import com.wang.gvideo.migu.dao.CollectManager
 import com.wang.gvideo.migu.dao.model.ViewVideoDao
@@ -167,10 +165,14 @@ class VideoFirstAcitivity : BaseActivity() {
             val headerView = LayoutInflater.from(this@VideoFirstAcitivity).inflate(R.layout.header_first_layout, null)
             val firstView = headerView.findViewById<ImageView>(R.id.header_right_ic)
             firstView.setOnClickListener {
-                PanterDialog(this@VideoFirstAcitivity)
-                        .setDialogType(DialogType.INPUT)
-                        .withAnimation(Animation.DEFAULT)
-                        .input { text ->
+                AlertView.Builder()
+                        .setContext(this@VideoFirstAcitivity)
+                        .setStyle(AlertView.Style.Alert)
+                        .setTitle("添加视频cid")
+                        .setMessage(null)
+                        .setCancelText("取消")
+                        .setDestructive("播放")
+                        .setWithEditor("请输入cid") { text ->
                             text.toIntOrNull()?.let { VideoPlayHelper.startSingleVideoPlay(this@VideoFirstAcitivity, it.toString()) }.nil {
                                 Alerter.create(this@VideoFirstAcitivity)
                                         .setTitle("提示")
@@ -180,11 +182,7 @@ class VideoFirstAcitivity : BaseActivity() {
                                         .show()
                             }
                         }
-                        .setHeaderBackground(getDrawable(R.color.colorPrimary))
-                        .setTitle("添加视频cid")
-                        .setNegative("取消")
-                        .setPositive("播放")
-                        .show()
+                        .build().show()
             }
             val secondView = headerView.findViewById<ImageView>(R.id.header_right_ic2)
             secondView.setOnClickListener {
