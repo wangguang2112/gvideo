@@ -7,6 +7,7 @@
                 android:layout_marginRight="10dp"
                 android:layout_width="wrap_content"
                 android:background="@drawable/search_item_background"
+                android:descendantFocusability="blocksDescendants"
                 android:layout_height="113dp">
     <com.facebook.drawee.view.SimpleDraweeView
         android:id="@+id/video_collect_item_icon"
@@ -21,8 +22,8 @@
         android:src="@drawable/delete"
         android:layout_marginLeft="3dp"
         android:layout_marginTop="3dp"
-        android:layout_width="15dp"
-        android:layout_height="15dp"/>
+        android:layout_width="20dp"
+        android:layout_height="20dp"/>
     <TextView
         android:id="@+id/video_collect_item_name"
         android:layout_below="@id/video_collect_item_icon"
