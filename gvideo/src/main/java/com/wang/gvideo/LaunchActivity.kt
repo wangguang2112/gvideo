@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.WindowManager
 import com.wang.gvideo.common.base.BaseActivity
@@ -23,6 +24,7 @@ class LaunchActivity : BaseActivity() {
 
     fun showAnim() {
         val animName = getAnimName()
+        Log.d(TAG,animName)
         animation_name.text = animName
         animation_view.setAnimation(animName)
         animation_view.playAnimation()

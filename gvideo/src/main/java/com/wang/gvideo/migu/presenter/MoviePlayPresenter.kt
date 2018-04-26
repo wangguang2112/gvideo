@@ -97,14 +97,14 @@ class MoviePlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
     }
 
     private fun showSelectSeasonDialog() {
-        seasonList?.let {
-            SelectSeasonDialog(activity, it, position) { pos, dataItem ->
+        seasonList.notEmptyRun {list ->
+            SelectSeasonDialog(activity, list as List, position) { pos, dataItem ->
                 setOnBusy(true)
                 position = pos
                 saveHistory()
                 getVideoInfo(dataItem.first)
             }.show()
-        }.nil { Toast.makeText(activity, "木有了~", Toast.LENGTH_SHORT).show() }
+        }.nil { Toast.makeText(activity, "就这一集~", Toast.LENGTH_SHORT).show() }
     }
 
     private fun showWirelessToTvDialog() {
@@ -210,7 +210,8 @@ class MoviePlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
             }
             if (updateDao) {
                 seasonList?.let { season ->
-                    addSeasonList(contId, season)
+                    addSeasonList(contId, season.mapIndexed { index, pair ->
+                        Triple(pair.first,pair.second,position) } )
                 }
                 needUpdateSeason = false
                 RxBus.instance().postSingleEvent(BusKey.UPDATE_COLLECT_LIST,contId)
@@ -221,7 +222,9 @@ class MoviePlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
                 newSeasonList.notEmptyRun {
                     if (it is List) {
                         if (seasonList!!.size < it.size) {
-                            val subList = it.subList(seasonList!!.size, it.size - 1)
+                            val tripleList = it.mapIndexed { index, pair ->
+                                Triple(pair.first,pair.second,position) }
+                            val subList = tripleList.subList(seasonList!!.size, tripleList.size - 1)
                             addSeasonList(contId, subList)
                         }
                     }
@@ -232,15 +235,15 @@ class MoviePlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
         }
     }
 
-    private fun addSeasonList(nodeId: String, list: List<Pair<String, String>>) {
-        CollectManager.manager.collectSeasonList(list, object : IDaoAdapter<Pair<String, String>, SeasonInfoDao> {
-            override fun adapt(t: Pair<String, String>): SeasonInfoDao {
-                return SeasonInfoDao(t.second, t.first, nodeId)
+    private fun addSeasonList(nodeId: String, list: List<Triple<String, String,Int>>) {
+        CollectManager.manager.collectSeasonList(list, object : IDaoAdapter<Triple<String, String,Int>, SeasonInfoDao> {
+            override fun adapt(t: Triple<String, String,Int>): SeasonInfoDao {
+                return SeasonInfoDao(t.first, t.second, nodeId,t.third)
             }
 
-            override fun reAdapt(t: SeasonInfoDao?): Pair<String, String>? {
+            override fun reAdapt(t: SeasonInfoDao?): Triple<String, String,Int>? {
                 if (t != null) {
-                    return Pair(t.name, t.contId)
+                    return Triple(t.contId, t.name,t.position)
                 }
                 return null
             }

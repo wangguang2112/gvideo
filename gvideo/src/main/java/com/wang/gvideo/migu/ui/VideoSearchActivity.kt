@@ -21,6 +21,7 @@ import com.wang.gvideo.common.net.OneSubScriber
 import com.wang.gvideo.common.utils.DensityUtil
 import com.wang.gvideo.common.utils.SharedPreferencesUtil
 import com.wang.gvideo.common.utils.empty
+import com.wang.gvideo.common.utils.notEmptyRun
 import com.wang.gvideo.common.view.RecyclerViewDivider
 import com.wang.gvideo.migu.api.MiGuCmInter
 import com.wang.gvideo.migu.component.DaggerVideoSearchComponent
@@ -131,8 +132,13 @@ class VideoSearchActivity : BaseActivity() {
                     }
                     ApiFactory.INSTANCE().getGson().fromJson(result, AppVideoListInfo::class.java)
                 }
-                .map { it.apply { it.searchresult2.forEach {
-                    it.isCollect = CollectManager.manager.checkExit(AppSearchListItem.getContId(it.contParam)) } }
+                .map {
+                    it.apply {
+                        it.searchresult2.forEach {
+                            it.isCollect = CollectManager.manager.checkExit(AppSearchListItem.getContId(it.contParam))
+                            it.subList.notEmptyRun { it.forEachIndexed { index, appSeasonItem -> appSeasonItem.position = index } }
+                        }
+                    }
                 }
                 .subscribe(object : OneSubScriber<AppVideoListInfo>() {
                     override fun onNext(t: AppVideoListInfo) {

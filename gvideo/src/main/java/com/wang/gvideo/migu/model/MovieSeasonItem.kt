@@ -15,6 +15,6 @@ data class MovieSeasonItem(val name: String, val param: String){
     }
 
     fun changePair():Pair<String,String>{
-        return Pair(name,getContId(param))
+        return Pair(getContId(param),name)
     }
 }

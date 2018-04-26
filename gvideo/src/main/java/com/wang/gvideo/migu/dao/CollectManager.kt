@@ -72,7 +72,7 @@ class CollectManager private constructor() {
                 }
                 .flatMap { node ->
                     DataCenter.instance()
-                            .queryWithConditionSort(SeasonInfoDao::class, "", node.contId)
+                            .queryWithConditionSort(SeasonInfoDao::class, "position", node.contId)
                             .map { seasonList ->
                                 CollectListModel(node, seasonList)
                             }

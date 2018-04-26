@@ -12,11 +12,12 @@ import com.wang.gvideo.migu.dao.model.VideoInfoDao
  */
 data class AppSeasonItem(val param: String, val name: String, val img: String){
 
+    var position = 0
     companion object {
         fun getDaoAdapter(): IDaoAdapter<AppSeasonItem, SeasonInfoDao> {
             return object : IDaoAdapter<AppSeasonItem, SeasonInfoDao> {
                 override fun adapt(t: AppSeasonItem): SeasonInfoDao {
-                    return SeasonInfoDao(AppSearchListItem.getContId(t.param),t.name,t.getNodeId())
+                    return SeasonInfoDao(AppSearchListItem.getContId(t.param),t.name,t.getNodeId(),t.position)
                 }
 
                 override fun reAdapt(t: SeasonInfoDao?): AppSeasonItem? {

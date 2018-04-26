@@ -15,9 +15,9 @@ import rx.Observable
  *
  * @author wangguang.
  */
-open class SeasonInfoDao(@PrimaryKey var contId: String, var name: String, var nodeid: String) : RealmObject() {
+open class SeasonInfoDao(@PrimaryKey var contId: String, var name: String, var nodeid: String,var position:Int) : RealmObject() {
 
-    constructor() : this("", "", "")
+    constructor() : this("", "", "",0)
 
     companion object : IDao<SeasonInfoDao> {
         override fun getCollect(): ICollect<SeasonInfoDao> {
@@ -36,7 +36,7 @@ open class SeasonInfoDao(@PrimaryKey var contId: String, var name: String, var n
         }
 
         override fun queryConditionSorted(sorted: String,condition: String): Observable<List<SeasonInfoDao>> {
-            return realm._querySortedCondition(SeasonInfoDao::class.java,sorted,"nodeid",condition, Sort.DESCENDING)
+            return realm._querySortedCondition(SeasonInfoDao::class.java,sorted,"nodeid",condition, Sort.ASCENDING)
         }
 
         override fun queryList(): Observable<List<SeasonInfoDao>> {
@@ -66,7 +66,7 @@ open class SeasonInfoDao(@PrimaryKey var contId: String, var name: String, var n
     }
 
     override fun equals(other: Any?): Boolean {
-        return other is SeasonInfoDao && contId == other.contId && name == name && nodeid == nodeid
+        return other is SeasonInfoDao && contId == other.contId && name == name && nodeid == nodeid && position == position
     }
 
 }
