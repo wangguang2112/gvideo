@@ -1,7 +1,10 @@
 package com.wang.gvideo.migu.presenter
 
+import android.view.View
 import android.util.Log
 import android.widget.Toast
+import com.hpplay.callback.HpplayWindowPlayCallBack
+import com.hpplay.link.HpplayLinkControl
 import com.leo.player.media.IjkVideoManager
 import com.leo.player.media.StateChangeListener
 import com.leo.player.media.controller.OnMoreInfoClickListener
@@ -38,7 +41,8 @@ import javax.inject.Inject
  *
  * @author wangguang.
  */
-class MoviePlayPresenter @Inject constructor(activity: VideoPlayActivity) : BasePresenter<VideoPlayActivity>(activity), OnMoreInfoClickListener, StateChangeListener {
+class MoviePlayPresenter @Inject constructor(activity: VideoPlayActivity) : BasePresenter<VideoPlayActivity>(activity), OnMoreInfoClickListener, StateChangeListener, View.OnClickListener {
+
 
     var infoModel: MovieInfoModel? = null
     var seasonList: List<Pair<String, String>>? = null
@@ -48,9 +52,9 @@ class MoviePlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
         super.onCreate()
         val contId = activity.intent.getStringExtra(VIDEO_CONT_ID)
         activity.intent.getSerializableExtra(VIDEO_CONT_SEASON_IDS)?.let {
-            seasonList = ( it as Array<Pair<String, String>>).toList()
+            seasonList = (it as Array<Pair<String, String>>).toList()
         }
-        playPosition = activity.intent.getIntExtra(VIDEO_CONT_PLAY_POS,0)
+        playPosition = activity.intent.getIntExtra(VIDEO_CONT_PLAY_POS, 0)
         position = activity.intent.getIntExtra(VIDEO_CONT_ID_POS, 0)
         if (contId.isNotEmpty()) {
             getVideoInfo(contId)
@@ -70,12 +74,12 @@ class MoviePlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
                 .setSelectListener { rate ->
                     Log.d(TAG, "rate" + rate)
                     infoModel?.let {
-                        getVideoInfo(it.contentId,rate)
+                        getVideoInfo(it.contentId, rate, true)
                         Prefences.selectDefiniitionRate(rate)
                     }
                 }
-                .setModel(infoModel?.getSupportRate()?: listOf())
-                .selectRate(infoModel?.rate?:50)
+                .setModel(infoModel?.getSupportRate() ?: listOf())
+                .selectRate(infoModel?.rate ?: 50)
                 .show()
     }
 
@@ -90,12 +94,38 @@ class MoviePlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
         }.nil { Toast.makeText(activity, "木有了~", Toast.LENGTH_SHORT).show() }
     }
 
+    private fun showWirelessToTvDialog() {
+        infoModel?.let { model ->
+            activity.pauseVideo()
+            HpplayLinkControl.getInstance().showHpplayWindow(activity, model.playUrl, activity.getNowPosition() / 1000, object : HpplayWindowPlayCallBack {
+                override fun onIsConnect(p0: Boolean) {
+                    var msg = ""
+                    if (p0) {
+                        msg = "已连接"
+                    } else {
+                        msg = "连接已断开"
+                    }
+                    showMsg(msg)
+                }
+
+                override fun onIsPlaySuccess(p0: Boolean) {
+                    showMsg("正在播放中")
+                }
+
+                override fun onHpplayWindowDismiss() {
+//                    showMsg("关闭")
+                }
+
+            }, HpplayLinkControl.PUSH_VIDEO)
+        }
+    }
+
     private fun showDownloadDialog() {
-        setOnBusy(true,true)
+        setOnBusy(true, true)
         seasonList?.let {
             CacheManager.intance().checkIsDownload(it)
                     .doOnTerminate { setOnBusy(false) }
-                    .subscribe(object :OneSubScriber<List<Pair<String, Boolean>>>(){
+                    .subscribe(object : OneSubScriber<List<Pair<String, Boolean>>>() {
                         override fun onNext(t: List<Pair<String, Boolean>>) {
                             super.onNext(t)
                             SelectDownloadDialog(activity, t) {
@@ -108,10 +138,9 @@ class MoviePlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
     }
 
 
-
-    private fun getVideoInfo(contId: String,requestRate:Int = Prefences.getDefiniitionRate()) {
+    private fun getVideoInfo(contId: String, requestRate: Int = Prefences.getDefiniitionRate(), change: Boolean = false) {
         val s = doHttp(MiGuMovieInter::class.java)
-                .getMovieData(contId,requestRate)
+                .getMovieData(contId, requestRate)
                 .subscribeOn(Schedulers.io())
                 .map {
                     val result = it.replace(Regex(",[\\s]*\\}|,[\\s]*\\]")) {
@@ -133,13 +162,13 @@ class MoviePlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
                     override fun onNext(t: MovieInfoModel) {
                         super.onNext(t)
                         infoModel = t
-                        infoModel?.rate = infoModel?.selectSupportRate(requestRate)?:50
+                        infoModel?.rate = infoModel?.selectSupportRate(requestRate) ?: 50
                         //使用内置的分集
-                        if(seasonList == null){
+                        if (seasonList == null) {
                             seasonList = infoModel?.getSeasonPairs()
-                            if(!seasonList.empty()){
+                            if (!seasonList.empty()) {
                                 seasonList?.forEachIndexed { index, i ->
-                                    if(i.first == contId){
+                                    if (i.first == contId) {
                                         position = index
                                         return@forEachIndexed
                                     }
@@ -148,13 +177,16 @@ class MoviePlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
                         }
                         val url = t.playUrl
                         Log.d(TAG, url)
-                        activity.startPlay(t.titleName, url, MovieInfoModel.definitionName(t.rate),playPosition)
+                        if (change) {
+                            activity.changeDefinition(MovieInfoModel.definitionName(t.rate), url)
+                        } else {
+                            activity.startPlay(t.titleName, url, MovieInfoModel.definitionName(t.rate), playPosition)
+                        }
                         playPosition = 0
                     }
                 })
         addSubscription(s)
     }
-
 
 
     override fun notifyPlayState(statue: Int) {
@@ -177,21 +209,37 @@ class MoviePlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
         saveHistory()
     }
 
-    private fun saveHistory(){
+    private fun saveHistory() {
         //存储播放位置
         infoModel?.let {
             val pos = IjkVideoManager.getInstance().currentPosition
             val all = IjkVideoManager.getInstance().duration
-            val prec = if(all == 0){0}else{ pos * 100 /all}
+            val prec = if (all == 0) {
+                0
+            } else {
+                pos * 100 / all
+            }
             //大于95的 统统去掉
-            if(prec in 1..100) {
-                val info = ViewVideoDao(it.contentId, it.titleName, it.srcH, pos, prec,System.currentTimeMillis())
+            if (prec in 1..100) {
+                val info = ViewVideoDao(it.contentId, it.titleName, it.srcH, pos, prec, System.currentTimeMillis())
                 DataCenter.instance().insert(info)
                 RxBus.instance().postEmptyEvent(BusKey.UPDATE_HISTORY_LIST)
-            }else if(prec == 0 && pos > 0){
-                val info = ViewVideoDao(it.contentId, it.titleName, it.srcH, pos, prec,System.currentTimeMillis())
+            } else if (prec == 0 && pos > 0) {
+                val info = ViewVideoDao(it.contentId, it.titleName, it.srcH, pos, prec, System.currentTimeMillis())
                 DataCenter.instance().insert(info)
                 RxBus.instance().postEmptyEvent(BusKey.UPDATE_HISTORY_LIST)
+            }
+        }
+    }
+
+    override fun onClick(p0: View?) {
+        p0?.let {
+            when (p0.tag) {
+                VideoPlayActivity.TAG_WIRELESS -> {
+                    showWirelessToTvDialog()
+                }
+                else -> {
+                }
             }
         }
     }

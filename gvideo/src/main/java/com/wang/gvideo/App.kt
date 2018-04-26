@@ -5,6 +5,8 @@ import com.wang.gvideo.common.Common
 import android.app.Application
 import android.content.Context
 import com.facebook.drawee.backends.pipeline.Fresco
+import com.hpplay.link.HpplayLinkControl
+import com.wang.gvideo.migu.constant.Config
 import io.realm.Realm
 import io.realm.RealmConfiguration
 
@@ -33,6 +35,7 @@ class App : Application() {
                 .deleteRealmIfMigrationNeeded()
                 .build()
         Realm.setDefaultConfiguration(config)
+        HpplayLinkControl.getInstance().initHpplayLink(this, Config.LEBO_WIRE_SCREEN_ID)
     }
 
 }

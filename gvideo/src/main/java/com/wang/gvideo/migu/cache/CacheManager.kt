@@ -1,5 +1,7 @@
 package com.wang.gvideo.migu.cache
 
+import com.hdl.m3u8.M3U8DownloadTask
+import com.hdl.m3u8.bean.OnDownloadListener
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
@@ -27,7 +29,7 @@ class CacheManager {
                         result.add(Pair(it.first, true))
                     }
                     result.removeAt(0)
-                    result.add(0,Pair( list.first().first,false))
+                    result.add(0, Pair(list.first().first, false))
                     it.onNext(result.toList())
                     it.onCompleted()
                 }
@@ -36,6 +38,29 @@ class CacheManager {
     }
 
     fun downloadNew(list: List<Pair<String, Boolean>>) {
+        val url = ""
+        val task = M3U8DownloadTask("1001")
+        task.download(url, object : OnDownloadListener {
+            override fun onSuccess() {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
 
+            override fun onDownloading(itemFileSize: Long, totalTs: Int, curTs: Int) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+            override fun onProgress(curLength: Long) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+            override fun onError(errorMsg: Throwable?) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+            override fun onStart() {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+        })
     }
 }

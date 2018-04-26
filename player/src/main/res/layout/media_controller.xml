@@ -32,16 +32,23 @@
         android:layout_centerInParent="true"
         />
 
-    <TextView
-        android:id="@+id/title"
+    <LinearLayout
+        android:id="@+id/header_layout"
         android:layout_width="match_parent"
-        android:layout_height="35dp"
-        android:gravity="center_vertical"
         android:background="#99000000"
-        android:paddingLeft="16dp"
-        android:textColor="#ffffff"
-        android:singleLine="true"
-        android:text="第一集"/>
+        android:orientation="horizontal"
+        android:layout_height="35dp">
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="0dp"
+            android:layout_height="35dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="16dp"
+            android:textColor="#ffffff"
+            android:layout_weight="1"
+            android:singleLine="true"
+            android:text="第一集"/>
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/more_change_layout"

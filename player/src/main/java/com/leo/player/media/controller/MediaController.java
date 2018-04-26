@@ -51,7 +51,9 @@ import com.leo.player.media.videoview.IjkVideoView;
 import com.leo.player.media.weiget.ENDownloadView;
 import com.leo.player.media.weiget.ENPlayView;
 
+import java.util.ArrayList;
 import java.util.Formatter;
+import java.util.List;
 import java.util.Locale;
 
 import static com.leo.player.R.id.total;
@@ -132,6 +134,9 @@ public class MediaController extends FrameLayout implements IMediaController, Or
     /** 是否展示更多选项 下载 切换码率 以及更换分集 */
     private boolean mShowMoreOption = false;
 
+    /** 头部添加额外扩展View  */
+    private List<View> mMoreViewList = new ArrayList<>();
+
     ///////////////////////////////////////////////////////////////////////////
     // 常量区
     ///////////////////////////////////////////////////////////////////////////
@@ -192,6 +197,8 @@ public class MediaController extends FrameLayout implements IMediaController, Or
     private ImageView mBtnFullscreen;
 
     private TextView mTitleView;
+
+    private LinearLayout mHeaderLayout;
 
     private ProgressBar mBottomProgressbar;
 
@@ -1032,8 +1039,8 @@ public class MediaController extends FrameLayout implements IMediaController, Or
         if (mBottomProgressbar != null) {
             mBottomProgressbar.setVisibility(GONE);
         }
-        if (mTitleView != null && mShowTitle) {
-            mTitleView.setVisibility(VISIBLE);
+        if (mHeaderLayout != null && mShowTitle) {
+            mHeaderLayout.setVisibility(VISIBLE);
         }
         if (moreLayout != null && mShowMoreOption){
             moreLayout.setVisibility(VISIBLE);
@@ -1053,8 +1060,8 @@ public class MediaController extends FrameLayout implements IMediaController, Or
         if (mBottomProgressbar != null) {
             mBottomProgressbar.setVisibility(mShowBottomProgress && mEnabled ? VISIBLE : GONE);
         }
-        if (mTitleView != null) {
-            mTitleView.setVisibility(GONE);
+        if (mHeaderLayout != null) {
+            mHeaderLayout.setVisibility(GONE);
         }
         if (moreLayout != null && mShowMoreOption){
             moreLayout.setVisibility(GONE);
@@ -1199,6 +1206,7 @@ public class MediaController extends FrameLayout implements IMediaController, Or
         mTextTotal = (TextView) mediaView.findViewById(total);
         mBtnFullscreen = (ImageView) mediaView.findViewById(R.id.fullscreen);
         mTitleView = (TextView) mediaView.findViewById(R.id.title);
+        mHeaderLayout = (LinearLayout)mediaView.findViewById(R.id.header_layout);
         mBottomProgressbar = (ProgressBar) mediaView.findViewById(R.id.bottom_progressbar);
         mBottomProgressbar.setVisibility(mShowBottomProgress ? VISIBLE : GONE);
         mImgThumb = (ImageView) mediaView.findViewById(R.id.thumb);
@@ -1291,9 +1299,14 @@ public class MediaController extends FrameLayout implements IMediaController, Or
             mLayoutBottom.setVisibility(GONE);
         }
         mBtnFullscreen.setVisibility(mShowFullscreenBt ? View.VISIBLE : View.GONE);
-        mTitleView.setVisibility(mShowTitle ? View.VISIBLE : View.GONE);
+        mHeaderLayout.setVisibility(mShowTitle ? View.VISIBLE : View.GONE);
         mTitleView.setText(mTitle);
         moreLayout.setVisibility(mShowMoreOption?VISIBLE:GONE);
+        if(mMoreViewList.size() != 0){
+            for(View v:mMoreViewList){
+                mHeaderLayout.addView(v);
+            }
+        }
     }
 
     private OnClickListener mFullScreenListener = new OnClickListener() {
@@ -1584,8 +1597,8 @@ public class MediaController extends FrameLayout implements IMediaController, Or
 
     public void setShowTitle(boolean showTitle) {
         mShowTitle = showTitle;
-        if (mTitleView != null) {
-            mTitleView.setVisibility(showTitle ? VISIBLE : GONE);
+        if (mHeaderLayout != null) {
+            mHeaderLayout.setVisibility(showTitle ? VISIBLE : GONE);
         }
     }
 
@@ -1608,6 +1621,17 @@ public class MediaController extends FrameLayout implements IMediaController, Or
         mShowMoreOption = showMoreOption;
         if(moreLayout != null){
             moreLayout.setVisibility(mShowMoreOption?VISIBLE:GONE);
+        }
+    }
+
+    /**
+     * 添加头部更多选项，
+     * @param view 此View可添加 LinearLayout.LayoutParams
+     */
+    public void addHeadMoreView(View view) {
+        mMoreViewList.add(view);
+        if(mHeaderLayout != null){
+            mHeaderLayout.addView(view);
         }
     }
 

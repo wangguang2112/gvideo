@@ -1,8 +1,13 @@
 package com.wang.gvideo.migu.ui
 
 import android.os.Bundle
+import android.view.View
 import android.util.Log
+import android.view.Gravity
 import android.view.WindowManager
+import android.widget.ImageView
+import android.widget.LinearLayout
+import com.code19.library.DensityUtil
 import com.leo.player.media.IjkVideoManager
 import com.leo.player.media.controller.MediaController
 import com.wang.gvideo.R
@@ -13,6 +18,9 @@ import kotlinx.android.synthetic.main.activity_video_play.*
 import javax.inject.Inject
 
 class VideoPlayActivity : BaseActivity() {
+    companion object {
+        const val TAG_WIRELESS = "wireless_TV"
+    }
 
     @Inject
     lateinit var presenter: MoviePlayPresenter
@@ -50,6 +58,7 @@ class VideoPlayActivity : BaseActivity() {
     fun startPlay(title: String, url: String,definition:String,playPos:Int = 0) {
         controller.setTitle(title)
         controller.setDefinition(definition)
+        controller.addHeadMoreView(getProjectionScreenIcon())
         if(IjkVideoManager.getInstance().isPlaying){
             IjkVideoManager.getInstance().release()
             mainHandler.postDelayed({
@@ -77,10 +86,22 @@ class VideoPlayActivity : BaseActivity() {
         }
     }
 
+    fun getProjectionScreenIcon():View{
+        val scr = ImageView(this)
+        scr.scaleType = ImageView.ScaleType.CENTER_INSIDE
+        scr.setImageResource(R.drawable.wirelesstv)
+        val params = LinearLayout.LayoutParams(DensityUtil.dip2px(this,30f),DensityUtil.dip2px(this,30f))
+        params.gravity = Gravity.CENTER_VERTICAL
+        params.rightMargin = DensityUtil.dip2px(this,15f)
+        scr.layoutParams = params
+        scr.tag = TAG_WIRELESS
+        scr.setOnClickListener(presenter)
+        return scr
+    }
+
     fun changeDefinition(definition: String, url: String) {
         controller.setDefinition(definition)
         var lastPosition = IjkVideoManager.getInstance().currentPosition
-//        IjkVideoManager.getInstance().pause()
         IjkVideoManager.getInstance().release()
         mainHandler.postDelayed({
             video_view.setVideoPath(url)
@@ -95,6 +116,20 @@ class VideoPlayActivity : BaseActivity() {
         }, 300)
     }
 
+    fun pauseVideo(){
+        if(IjkVideoManager.getInstance().isPlaying) {
+            IjkVideoManager.getInstance().pause()
+        }
+    }
+
+    fun resumeVideo(){
+        if(!IjkVideoManager.getInstance().isPlaying){
+            IjkVideoManager.getInstance().start()
+        }
+    }
+    fun getNowPosition():Int{
+        return IjkVideoManager.getInstance().currentPosition
+    }
     override fun onDestroy() {
         super.onDestroy()
         IjkVideoManager.getInstance().release()

@@ -12,4 +12,7 @@ object Config {
 
     const val CLIENT_ID = "3bbbe95333920f0a094f5ce052b3d168"
 
+    const val LEBO_WIRE_SCREEN_ID = "384556a5f86207dba4de429bd556b63f"
+
+
 }

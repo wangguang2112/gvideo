@@ -24,14 +24,21 @@ android {
         abi {
             enable true
             reset()
-            include 'armeabi',"arm64-v8a" //select ABIs to build APKs for
+            include 'armeabi', "arm64-v8a" //select ABIs to build APKs for
             universalApk false //generate an additional APK that contains all the ABIs
         }
     }
 }
 
+repositories{
+    flatDir{
+        dirs 'libs'
+    }
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation(name: "hpplay-link-2412", ext: "aar")
     implementation project(":player")
     api project(":gvideo-common")
     kapt 'com.jakewharton:butterknife-compiler:8.4.0'

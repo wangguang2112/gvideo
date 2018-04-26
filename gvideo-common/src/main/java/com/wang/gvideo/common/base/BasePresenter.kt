@@ -1,5 +1,6 @@
 package com.wang.gvideo.common.base
 
+import android.widget.Toast
 import com.wang.gvideo.common.net.ApiFactory
 import rx.Subscription
 
@@ -51,6 +52,14 @@ open class BasePresenter<out AC> constructor(protected val activity: AC) : IPres
        if (activity is BaseActivity) {
            activity.addSubscription(s)
        }
+    }
+
+    fun showMsg(msg:String){
+        if (activity is BaseActivity) {
+            activity.mainHandler.post {
+                Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
 }
