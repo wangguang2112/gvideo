@@ -14,6 +14,8 @@ object VideoPlayHelper {
     val VIDEO_CONT_SEASON_IDS = "video_cont_season_ids"
     val VIDEO_CONT_ID_POS = "video_cont_id_pos"
     val VIDEO_CONT_PLAY_POS = "video_cont_play_pos"
+    val VIDEO_WITH_SEASON_UPDATE = "video_with_season_update"
+
     fun startSingleVideoPlay(context: Context, contId: String) {
         val intent = Intent(context, VideoPlayActivity::class.java)
         intent.putExtra(VIDEO_CONT_ID, contId)
@@ -27,11 +29,12 @@ object VideoPlayHelper {
         context.startActivity(intent)
     }
 
-    fun startListVideoPlay(context: Context, contId: String, seasonList: List<Pair<String, String>>, pos: Int) {
+    fun startListVideoPlay(context: Context, contId: String, seasonList: List<Pair<String, String>>, pos: Int,update:Boolean = false) {
         val intent = Intent(context, VideoPlayActivity::class.java)
         intent.putExtra(VIDEO_CONT_ID, contId)
         intent.putExtra(VIDEO_CONT_SEASON_IDS, seasonList.toTypedArray())
         intent.putExtra(VIDEO_CONT_ID_POS, pos)
+        intent.putExtra(VIDEO_WITH_SEASON_UPDATE, update)
         context.startActivity(intent)
     }
 }

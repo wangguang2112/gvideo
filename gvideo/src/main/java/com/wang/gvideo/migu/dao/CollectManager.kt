@@ -41,6 +41,13 @@ class CollectManager private constructor() {
         }
 
     }
+    fun <T : Any> collectSeason(data: T, adapter: IDaoAdapter<T, SeasonInfoDao>) {
+        DataCenter.instance().insert(SeasonInfoDao::class, data, adapter)
+    }
+
+    fun <T : Any> collectSeasonList(data: Iterable<T>, adapter: IDaoAdapter<T, SeasonInfoDao>) {
+        DataCenter.instance().insertList(SeasonInfoDao::class, data, adapter)
+    }
 
     fun unCollectSeasonVideo(key:String) {
         DataCenter.instance().delete(VideoInfoDao::class, key)

@@ -11,14 +11,18 @@ import com.leo.player.media.controller.OnMoreInfoClickListener
 import com.wang.gvideo.common.base.BasePresenter
 import com.wang.gvideo.common.bus.RxBus
 import com.wang.gvideo.common.dao.DataCenter
+import com.wang.gvideo.common.dao.IDaoAdapter
 import com.wang.gvideo.common.net.ApiFactory
 import com.wang.gvideo.common.net.OneSubScriber
 import com.wang.gvideo.common.utils.empty
 import com.wang.gvideo.common.utils.nil
+import com.wang.gvideo.common.utils.notEmptyRun
 import com.wang.gvideo.common.utils.safeGetRun
 import com.wang.gvideo.migu.api.MiGuMovieInter
 import com.wang.gvideo.migu.cache.CacheManager
 import com.wang.gvideo.migu.constant.BusKey
+import com.wang.gvideo.migu.dao.CollectManager
+import com.wang.gvideo.migu.dao.model.SeasonInfoDao
 import com.wang.gvideo.migu.dao.model.ViewVideoDao
 import com.wang.gvideo.migu.model.MovieInfoModel
 import com.wang.gvideo.migu.setting.Prefences
@@ -27,6 +31,7 @@ import com.wang.gvideo.migu.ui.VideoPlayHelper.VIDEO_CONT_ID
 import com.wang.gvideo.migu.ui.VideoPlayHelper.VIDEO_CONT_ID_POS
 import com.wang.gvideo.migu.ui.VideoPlayHelper.VIDEO_CONT_PLAY_POS
 import com.wang.gvideo.migu.ui.VideoPlayHelper.VIDEO_CONT_SEASON_IDS
+import com.wang.gvideo.migu.ui.VideoPlayHelper.VIDEO_WITH_SEASON_UPDATE
 import com.wang.gvideo.migu.ui.dialog.SelectDownloadDialog
 import com.wang.gvideo.migu.ui.dialog.SelectMovieDefiDialog
 import com.wang.gvideo.migu.ui.dialog.SelectSeasonDialog
@@ -46,8 +51,15 @@ class MoviePlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
 
     var infoModel: MovieInfoModel? = null
     var seasonList: List<Pair<String, String>>? = null
+
+    /** 视频在剧集中的位置 */
     var position = 0
+
+    /** 视频播放的时间位置 */
     var playPosition = 0
+
+    /** 剧集更新时是否更新数据库 */
+    var needUpdateSeason = false
     override fun onCreate() {
         super.onCreate()
         val contId = activity.intent.getStringExtra(VIDEO_CONT_ID)
@@ -56,6 +68,7 @@ class MoviePlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
         }
         playPosition = activity.intent.getIntExtra(VIDEO_CONT_PLAY_POS, 0)
         position = activity.intent.getIntExtra(VIDEO_CONT_ID_POS, 0)
+        needUpdateSeason = activity.intent.getBooleanExtra(VIDEO_WITH_SEASON_UPDATE, false)
         if (contId.isNotEmpty()) {
             getVideoInfo(contId)
         }
@@ -163,17 +176,8 @@ class MoviePlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
                         super.onNext(t)
                         infoModel = t
                         infoModel?.rate = infoModel?.selectSupportRate(requestRate) ?: 50
-                        //使用内置的分集
-                        if (seasonList == null) {
-                            seasonList = infoModel?.getSeasonPairs()
-                            if (!seasonList.empty()) {
-                                seasonList?.forEachIndexed { index, i ->
-                                    if (i.first == contId) {
-                                        position = index
-                                        return@forEachIndexed
-                                    }
-                                }
-                            }
+                        infoModel?.let {
+                            updateSeason(it.contentId,needUpdateSeason)
                         }
                         val url = t.playUrl
                         Log.d(TAG, url)
@@ -188,60 +192,118 @@ class MoviePlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
         addSubscription(s)
     }
 
-
-    override fun notifyPlayState(statue: Int) {
-        if (statue == IjkVideoManager.STATE_PLAYBACK_COMPLETED) {
-            seasonList.safeGetRun(position + 1) {
-                saveHistory()
-                Toast.makeText(activity, "马上下一集，稍后~", Toast.LENGTH_SHORT).show()
-                setOnBusy(true)
-                position += 1
-                getVideoInfo(it.first)
-                return@safeGetRun
-            }
-            Toast.makeText(activity, "播完啦~", Toast.LENGTH_SHORT).show()
-
-        }
-    }
-
-    override fun onStop() {
-        super.onStop()
-        saveHistory()
-    }
-
-    private fun saveHistory() {
-        //存储播放位置
-        infoModel?.let {
-            val pos = IjkVideoManager.getInstance().currentPosition
-            val all = IjkVideoManager.getInstance().duration
-            val prec = if (all == 0) {
-                0
-            } else {
-                pos * 100 / all
-            }
-            //大于95的 统统去掉
-            if (prec in 1..100) {
-                val info = ViewVideoDao(it.contentId, it.titleName, it.srcH, pos, prec, System.currentTimeMillis())
-                DataCenter.instance().insert(info)
-                RxBus.instance().postEmptyEvent(BusKey.UPDATE_HISTORY_LIST)
-            } else if (prec == 0 && pos > 0) {
-                val info = ViewVideoDao(it.contentId, it.titleName, it.srcH, pos, prec, System.currentTimeMillis())
-                DataCenter.instance().insert(info)
-                RxBus.instance().postEmptyEvent(BusKey.UPDATE_HISTORY_LIST)
-            }
-        }
-    }
-
-    override fun onClick(p0: View?) {
-        p0?.let {
-            when (p0.tag) {
-                VideoPlayActivity.TAG_WIRELESS -> {
-                    showWirelessToTvDialog()
-                }
-                else -> {
+    /**
+     * 更新剧集
+     * @param updateDao 是否更新数据库
+     */
+    private fun updateSeason(contId: String, updateDao: Boolean = false) {
+        //使用内置的分集
+        if (seasonList == null) {
+            seasonList = infoModel?.getSeasonPairs()
+            if (!seasonList.empty()) {
+                seasonList?.forEachIndexed { index, i ->
+                    if (i.first == contId) {
+                        position = index
+                        return@forEachIndexed
+                    }
                 }
             }
+            if (updateDao) {
+                seasonList?.let { season ->
+                    addSeasonList(contId, season)
+                }
+                needUpdateSeason = false
+                RxBus.instance().postSingleEvent(BusKey.UPDATE_COLLECT_LIST,contId)
+            }
+        }else{
+            if(updateDao) {
+                val newSeasonList = infoModel?.getSeasonPairs()
+                newSeasonList.notEmptyRun {
+                    if (it is List) {
+                        if (seasonList!!.size < it.size) {
+                            val subList = it.subList(seasonList!!.size, it.size - 1)
+                            addSeasonList(contId, subList)
+                        }
+                    }
+                }
+                RxBus.instance().postSingleEvent(BusKey.UPDATE_COLLECT_LIST,contId)
+                needUpdateSeason = false
+            }
         }
     }
+
+    private fun addSeasonList(nodeId: String, list: List<Pair<String, String>>) {
+        CollectManager.manager.collectSeasonList(list, object : IDaoAdapter<Pair<String, String>, SeasonInfoDao> {
+            override fun adapt(t: Pair<String, String>): SeasonInfoDao {
+                return SeasonInfoDao(t.second, t.first, nodeId)
+            }
+
+            override fun reAdapt(t: SeasonInfoDao?): Pair<String, String>? {
+                if (t != null) {
+                    return Pair(t.name, t.contId)
+                }
+                return null
+            }
+
+        })
+
+    }
+
+
+
+override fun notifyPlayState(statue: Int) {
+    if (statue == IjkVideoManager.STATE_PLAYBACK_COMPLETED) {
+        seasonList.safeGetRun(position + 1) {
+            saveHistory()
+            Toast.makeText(activity, "马上下一集，稍后~", Toast.LENGTH_SHORT).show()
+            setOnBusy(true)
+            position += 1
+            getVideoInfo(it.first)
+            return@safeGetRun
+        }
+        Toast.makeText(activity, "播完啦~", Toast.LENGTH_SHORT).show()
+
+    }
+}
+
+override fun onStop() {
+    super.onStop()
+    saveHistory()
+}
+
+private fun saveHistory() {
+    //存储播放位置
+    infoModel?.let {
+        val pos = IjkVideoManager.getInstance().currentPosition
+        val all = IjkVideoManager.getInstance().duration
+        val prec = if (all == 0) {
+            0
+        } else {
+            pos * 100 / all
+        }
+        //大于95的 统统去掉
+        if (prec in 1..100) {
+            val info = ViewVideoDao(it.contentId, it.titleName, it.srcH, pos, prec, System.currentTimeMillis())
+            DataCenter.instance().insert(info)
+            RxBus.instance().postEmptyEvent(BusKey.UPDATE_HISTORY_LIST)
+        } else if (prec == 0 && pos > 0) {
+            val info = ViewVideoDao(it.contentId, it.titleName, it.srcH, pos, prec, System.currentTimeMillis())
+            DataCenter.instance().insert(info)
+            RxBus.instance().postEmptyEvent(BusKey.UPDATE_HISTORY_LIST)
+        }
+    }
+}
+
+override fun onClick(p0: View?) {
+    p0?.let {
+        when (p0.tag) {
+            VideoPlayActivity.TAG_WIRELESS -> {
+                showWirelessToTvDialog()
+            }
+            else -> {
+            }
+        }
+    }
+}
 
 }

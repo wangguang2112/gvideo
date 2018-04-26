@@ -5,6 +5,7 @@ import com.wang.gvideo.common.bus.event.EmptyEvent
 import com.wang.gvideo.common.bus.event.Event
 
 import android.util.Log
+import com.wang.gvideo.common.bus.event.SimpleEvent
 
 import java.util.Arrays
 
@@ -45,6 +46,12 @@ class RxBus private constructor() {
         }
     }
 
+    fun <T> postSingleEvent(action: String,obj: T) {
+        Log.d("RxEvent", "postSingleEvent action : $action obj : $obj")
+        if (this.hasObservers()) {
+            rxBus.onNext(SimpleEvent(action,obj))
+        }
+    }
     fun postStickEvent(event: Event) {
         rxStickBus.onNext(event)
     }

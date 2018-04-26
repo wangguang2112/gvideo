@@ -14,6 +14,7 @@ import com.tapadoo.alerter.Alerter
 import com.wang.gvideo.R
 import com.wang.gvideo.common.base.BaseActivity
 import com.wang.gvideo.common.bus.RxBus
+import com.wang.gvideo.common.bus.event.SimpleEvent
 import com.wang.gvideo.common.dao.DataCenter
 import com.wang.gvideo.common.utils.nil
 import com.wang.gvideo.common.utils.string
@@ -67,8 +68,14 @@ class VideoFirstAcitivity : BaseActivity() {
         }
         autoUnSubscribe {
             RxBus.instance().toObservableOnMain(BusKey.UPDATE_COLLECT_LIST)
-                    .subscribe {
-                        isNeedRefreshCollect = true
+                    .subscribe {event ->
+                        if(event is SimpleEvent<*>){
+                            val contId = event.attachObj as String
+                            updateSingleCollectData(contId)
+                        }else{
+                            isNeedRefreshCollect = true
+                        }
+
                     }
         }
     }
@@ -114,6 +121,16 @@ class VideoFirstAcitivity : BaseActivity() {
         }
     }
 
+    private fun updateSingleCollectData(contId:String){
+        collectAdapter?.let { adaper ->
+           val pos = adaper.collectList.indexOfFirst {
+                it.contId == contId
+            }
+            if(pos != -1) {
+                adaper.notifyItemChanged(pos)
+            }
+        }
+    }
     private fun getCollectData() {
         setOnBusy(true)
         autoUnSubscribe {
