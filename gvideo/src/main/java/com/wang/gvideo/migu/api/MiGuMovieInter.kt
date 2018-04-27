@@ -22,6 +22,7 @@ interface MiGuMovieInter {
      * filterType 3
      * nt 4
      * cid 50142
+     * jid 08a6634ab91e72ef85021cfe314a2fde
      * clientId  3db191e8cfe3acd0c4abb76fcb3b9486
      */
     @GET("/iworld/publish/clt/resource/migumovie4/player/playerData.jsp")
@@ -32,5 +33,19 @@ interface MiGuMovieInter {
                      @Query("clientId") clientId: String = "3db191e8cfe3acd0c4abb76fcb3b9486",
                      @Query("filterType") filterType: Int = 3,
                      @Query("cid") cid: String = "50142",
+                     @Query("jid") jid: String = "08a6634ab91e72ef85021cfe314a2fde",
                      @Query("nt") nt: Int = 4): Observable<String>
+
+
+    @POST("/iworld/publish/clt/resource/migumovie4/search/searchData.jsp")
+    @FormUrlEncoded
+    fun getMovieSearchData(
+            @Field("keyWord") keyWord: String = "",
+            @Field("sdkVersion") sdkVersion: String = "64.00.00.14",
+            @Query("playerType") playerType: Int = 4,
+            @Query("res") res: String = "EXDPI",
+            @Query("clientId") clientId: String = "3db191e8cfe3acd0c4abb76fcb3b9486",
+            @Query("filterType") filterType: Int = 3,
+            @Query("cid") cid: String = "50142",
+            @Query("nt") nt: Int = 4): Observable<String>
 }

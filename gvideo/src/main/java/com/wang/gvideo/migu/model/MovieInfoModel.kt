@@ -15,6 +15,7 @@ data class MovieInfoModel(val titleName: String,
                           val DisplayName: String,
                           val contentId: String,
                           val supportRatePlay: String,
+                          val isPreview: String,
                           var playUrl: String,
                           val subList:List<MovieSeasonItem>,
                           var rate: Int) {
@@ -34,7 +35,9 @@ data class MovieInfoModel(val titleName: String,
         val rateStr = supportRatePlay.split(";")
         val supportRate = mutableListOf<Int>()
         rateStr.forEach {
-            supportRate.add(it.split("_")[0].toInt())
+            if(it.isNotEmpty()) {
+                supportRate.add(it.split("_")[0].toInt())
+            }
         }
         //倒叙排列
         supportRate.sortWith(Comparator { p0, p1 ->

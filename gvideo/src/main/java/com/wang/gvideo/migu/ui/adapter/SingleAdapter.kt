@@ -15,7 +15,7 @@ import com.wang.gvideo.common.utils.safeGet
  *
  * @author wangguang.
  */
-class SingleAdapter(val context: Context, val data: List<String>,
+class SingleAdapter(val context: Context, var data: MutableList<String>,
                     val listener: ((Int, String) -> Unit) = { _, _ -> }) : RecyclerView.Adapter<SingleAdapter.SingleTextHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): SingleTextHolder {

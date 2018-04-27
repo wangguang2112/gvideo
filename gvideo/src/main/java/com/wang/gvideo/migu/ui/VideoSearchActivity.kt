@@ -14,23 +14,23 @@ import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
+import com.tapadoo.alerter.Alerter
 import com.wang.gvideo.R
 import com.wang.gvideo.common.base.BaseActivity
 import com.wang.gvideo.common.net.ApiFactory
 import com.wang.gvideo.common.net.OneSubScriber
-import com.wang.gvideo.common.utils.DensityUtil
-import com.wang.gvideo.common.utils.SharedPreferencesUtil
-import com.wang.gvideo.common.utils.empty
-import com.wang.gvideo.common.utils.notEmptyRun
+import com.wang.gvideo.common.utils.*
 import com.wang.gvideo.common.view.RecyclerViewDivider
+import com.wang.gvideo.common.view.alert.AlertView
 import com.wang.gvideo.migu.api.MiGuCmInter
+import com.wang.gvideo.migu.api.MiGuMovieInter
 import com.wang.gvideo.migu.component.DaggerVideoSearchComponent
 import com.wang.gvideo.migu.constant.Config
 import com.wang.gvideo.migu.dao.CollectManager
-import com.wang.gvideo.migu.model.AppSearchListItem
-import com.wang.gvideo.migu.model.AppSeasonItem
-import com.wang.gvideo.migu.model.AppVideoListInfo
+import com.wang.gvideo.migu.model.*
+import com.wang.gvideo.migu.ui.adapter.SingleAdapter
 import com.wang.gvideo.migu.ui.adapter.VideoListAdapter
+import kotlinx.android.synthetic.main.activity_video_search.*
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import javax.inject.Inject
@@ -51,6 +51,8 @@ class VideoSearchActivity : BaseActivity() {
 
     @BindView(R.id.video_search_recom_list)
     lateinit var recommondList: ListView
+
+    var movieList  = mutableListOf<MovieItem>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,7 +84,7 @@ class VideoSearchActivity : BaseActivity() {
                         AppSearchListItem.getContId(season?.param ?: parent.contParam), parent.getSeasonPairs(), pos)
             }
         }
-        resultList.visibility = View.GONE
+
         showRecomond()
         searchET.setOnEditorActionListener(TextView.OnEditorActionListener { textView, actionId, keyEvent ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_UNSPECIFIED) {
@@ -91,6 +93,30 @@ class VideoSearchActivity : BaseActivity() {
             }
             false
         })
+        resultList.visibility = View.GONE
+        video_search_movie_list.visibility = View.GONE
+        video_search_movie_list.adapter = SingleAdapter(this,movieList.map { it.contentName }.toMutableList()){ pos,title ->
+            VideoPlayHelper.startSingleVideoPlay(this,movieList[pos].contentId)
+        }
+        video_search_movie_list.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
+        movie_search_list_bt.setOnClickListener {
+            if(video_search_movie_list.visibility == View.VISIBLE) {
+                video_search_movie_list.visibility = View.GONE
+                resultList.visibility = View.VISIBLE
+                this.title = "视频列表"
+            }else{
+                video_search_movie_list.visibility = View.VISIBLE
+                this.title = "电影列表"
+                resultList.visibility = View.GONE
+                if(needRefresh){
+                   val adapter = video_search_movie_list.adapter as SingleAdapter
+                    adapter.data.clear()
+                    adapter.data.addAll(movieList.map { "${it.contentName} : cid = ${it.contentId}" })
+                    adapter.notifyDataSetChanged()
+                    needRefresh  = false
+                }
+            }
+        }
     }
 
 
@@ -147,6 +173,7 @@ class VideoSearchActivity : BaseActivity() {
                         mResultListAdatper.notifyDataSetChanged()
                         resultList.scrollToPosition(0)
                         resultList.visibility = View.VISIBLE
+                        video_search_movie_list.visibility = View.GONE
                         recommondList.visibility = View.GONE
                         resultList.requestFocusFromTouch()
                     }
@@ -154,6 +181,43 @@ class VideoSearchActivity : BaseActivity() {
                     override fun onError(e: Throwable) {
                         super.onError(e)
                         showMsg("网络异常，请重试")
+                    }
+                })
+        getMovieData(value)
+    }
+
+    var needRefresh = false
+
+    private fun getMovieData(value: String){
+        doHttp(MiGuMovieInter::class.java)
+                .getMovieSearchData(value)
+                .subscribeOn(Schedulers.io())
+                .doOnTerminate { setOnBusy(false) }
+                .observeOn(AndroidSchedulers.mainThread())
+                .map {
+                    val result = it.replace(Regex(",[\\s]*\\}|,[\\s]*\\]")) {
+                        if (it.value.takeLast(1) == "}") {
+                            "}"
+                        } else {
+                            "]"
+                        }
+                    }
+                    ApiFactory.INSTANCE().getGson().fromJson(result, MovieItemList::class.java)
+                }.subscribe(object :OneSubScriber<MovieItemList>(){
+                    override fun onNext(t: MovieItemList) {
+                        super.onNext(t)
+                        movieList.clear()
+                        t.searchResult.notEmptyRun {
+                            if( it is List){
+                                movieList.addAll(it)
+                            }
+                        }
+                        if(movieList.isNotEmpty()){
+                            movie_search_list_bt.visibility = View.VISIBLE
+                            needRefresh = true
+                        }else{
+                            movie_search_list_bt.visibility = View.GONE
+                        }
                     }
                 })
     }

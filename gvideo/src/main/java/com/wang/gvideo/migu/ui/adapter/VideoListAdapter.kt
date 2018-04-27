@@ -216,6 +216,11 @@ class VideoListAdapter @Inject constructor(private val context: Context) : Recyc
                     }
                 }
             }
+            if(currentItem.isVip == 1){
+                holder.vipView?.visibility = View.VISIBLE
+            }else{
+                holder.vipView?.visibility = View.GONE
+            }
         }
     }
 
@@ -231,6 +236,7 @@ class VideoListAdapter @Inject constructor(private val context: Context) : Recyc
                 holder.fearureView = contentView.findViewById(R.id.video_item_feature) as TextView
                 holder.typeView = contentView.findViewById(R.id.video_item_display) as TextView
                 holder.categoryView = contentView.findViewById(R.id.video_item_type) as TextView
+                holder.vipView = contentView.findViewById(R.id.video_item_vip_msg) as TextView
                 holder.collectView = contentView.findViewById(R.id.video_item_collect) as ImageView
                 holder.diversityView = contentView.findViewById(R.id.video_item_diversity) as HorizontalListView
                 holder
@@ -259,6 +265,7 @@ class VideoListAdapter @Inject constructor(private val context: Context) : Recyc
         var fearureView: TextView? = null
         var typeView: TextView? = null
         var categoryView: TextView? = null
+        var vipView: TextView? = null
         var collectView: ImageView? = null
         var diversityView: HorizontalListView? = null
     }

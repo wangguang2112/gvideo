@@ -38,10 +38,34 @@
             android:layout_marginRight="15dp"
             android:scaleType="centerInside"
             android:id="@+id/video_search_bt"/>
+
+        <ImageButton
+            android:src="@drawable/movie_list"
+            android:layout_width="23dp"
+            android:layout_height="23dp"
+            android:background="@color/transparent"
+            android:layout_gravity="center_vertical"
+            android:transitionName="transition"
+            android:layout_marginRight="15dp"
+            android:visibility="gone"
+            android:scaleType="centerInside"
+            android:id="@+id/movie_search_list_bt"/>
     </LinearLayout>
     <android.support.v7.widget.RecyclerView
         android:layout_marginTop="10dp"
         android:id="@+id/video_search_result_list"
+        android:layout_below="@id/video_search_layout"
+        android:layout_marginLeft="@dimen/padding_15_dp"
+        android:layout_marginRight="@dimen/padding_15_dp"
+        android:layout_width="match_parent"
+        android:visibility="gone"
+        android:layout_height="match_parent">
+
+    </android.support.v7.widget.RecyclerView>
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_marginTop="10dp"
+        android:id="@+id/video_search_movie_list"
         android:layout_below="@id/video_search_layout"
         android:layout_marginLeft="@dimen/padding_15_dp"
         android:layout_marginRight="@dimen/padding_15_dp"

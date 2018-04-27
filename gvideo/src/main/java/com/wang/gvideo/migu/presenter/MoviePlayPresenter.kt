@@ -179,6 +179,9 @@ class MoviePlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
                         infoModel?.let {
                             updateSeason(it.contentId,needUpdateSeason)
                         }
+                        if(infoModel?.isPreview == "1"){
+                            Toast.makeText(activity,"目前只能看预览版",Toast.LENGTH_SHORT).show()
+                        }
                         val url = t.playUrl
                         Log.d(TAG, url)
                         if (change) {
