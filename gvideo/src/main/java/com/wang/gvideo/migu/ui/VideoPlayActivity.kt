@@ -145,4 +145,8 @@ class VideoPlayActivity : BaseActivity() {
         IjkVideoManager.getInstance().pause()
     }
 
+    override fun onStop() {
+        super.onStop()
+        IjkVideoManager.getInstance().pause()
+    }
 }
