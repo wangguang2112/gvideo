@@ -27,6 +27,8 @@ class VideoPlayActivity : BaseActivity() {
 
     lateinit var controller: MediaController
 
+    var isAddProject = false
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
@@ -58,7 +60,10 @@ class VideoPlayActivity : BaseActivity() {
     fun startPlay(title: String, url: String,definition:String,playPos:Int = 0) {
         controller.setTitle(title)
         controller.setDefinition(definition)
-        controller.addHeadMoreView(getProjectionScreenIcon())
+        if(!isAddProject){
+            controller.addHeadMoreView(getProjectionScreenIcon())
+            isAddProject = true
+        }
         if(IjkVideoManager.getInstance().isPlaying){
             IjkVideoManager.getInstance().release()
             mainHandler.postDelayed({

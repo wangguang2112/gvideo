@@ -262,7 +262,7 @@ override fun notifyPlayState(statue: Int) {
             setOnBusy(true)
             position += 1
             getVideoInfo(it.first)
-            return@safeGetRun
+            return
         }
         Toast.makeText(activity, "播完啦~", Toast.LENGTH_SHORT).show()
 

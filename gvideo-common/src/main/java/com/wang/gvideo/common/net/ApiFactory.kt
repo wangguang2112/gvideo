@@ -52,7 +52,10 @@ class ApiFactory private constructor() {
                     .readTimeout(30, TimeUnit.SECONDS)
                     .writeTimeout(30, TimeUnit.SECONDS)
                     .addInterceptor {
-                        val reqBuider = it.request().newBuilder().addHeader("X_UP_CLIENT_CHANNEL_ID", "64000014-99000-800000200000002")
+                        val reqBuider = it.request().newBuilder()
+                                .addHeader("X_UP_CLIENT_CHANNEL_ID", "64000014-99000-800000200000002")
+                                .addHeader("userId","982324173")
+                                .addHeader("userToken","BD7FF7C2A65632EEE63C")
                         it.proceed(reqBuider.build())
                     }
                     .cookieJar(cookieJar)

@@ -626,6 +626,7 @@ public class MediaController extends FrameLayout implements IMediaController, Or
         switch (state) {
             case IjkVideoManager.STATE_IDLE://闲置中
                 release();
+                mSeekProgress.setSecondaryProgress(0);
                 break;
             case IjkVideoManager.STATE_BUFFERING_START://开始缓冲
             case IjkVideoManager.STATE_PREPARING://准备中
