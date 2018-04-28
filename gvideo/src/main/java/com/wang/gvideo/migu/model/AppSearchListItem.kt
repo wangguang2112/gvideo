@@ -15,7 +15,7 @@ data class AppSearchListItem(val contName: String,
                              val actor: String,
                              val img: String,
                              val hImg: String,
-                             val isVip:Int,
+                             val isVip: Int,
                              val subList: List<AppSeasonItem>,
         // 4 表示电影
         // 0 表示一般视频
@@ -37,7 +37,12 @@ data class AppSearchListItem(val contName: String,
         }
 
         fun getContId(contParam: String): String {
-            return contParam.split(";")[0].split("=")[1]
+            val contID = contParam.split(";")[0].split("=")
+            return if (contID.size >= 2) {
+                contID[1]
+            } else {
+                ""
+            }
         }
 
         fun getDaoAdapter(): IDaoAdapter<AppSearchListItem, VideoInfoDao> {

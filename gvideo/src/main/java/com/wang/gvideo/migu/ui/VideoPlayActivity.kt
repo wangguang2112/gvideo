@@ -1,9 +1,9 @@
 package com.wang.gvideo.migu.ui
 
 import android.os.Bundle
-import android.view.View
 import android.util.Log
 import android.view.Gravity
+import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -13,7 +13,7 @@ import com.leo.player.media.controller.MediaController
 import com.wang.gvideo.R
 import com.wang.gvideo.common.base.BaseActivity
 import com.wang.gvideo.migu.component.DaggerVideoComponent
-import com.wang.gvideo.migu.presenter.MoviePlayPresenter
+import com.wang.gvideo.migu.presenter.VideoPlayPresenter
 import kotlinx.android.synthetic.main.activity_video_play.*
 import javax.inject.Inject
 
@@ -23,7 +23,7 @@ class VideoPlayActivity : BaseActivity() {
     }
 
     @Inject
-    lateinit var presenter: MoviePlayPresenter
+    lateinit var presenter: VideoPlayPresenter
 
     lateinit var controller: MediaController
 

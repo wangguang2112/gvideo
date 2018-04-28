@@ -32,6 +32,10 @@ data class AppSeasonItem(val param: String, val name: String, val img: String){
     }
 
     fun getNodeId():String {
-        return param.split(";")[1].split("=")[1]
+        if(param.isNotEmpty()) {
+            return param.split(";")[1].split("=")[1]
+        }else{
+            return ""
+        }
     }
 }

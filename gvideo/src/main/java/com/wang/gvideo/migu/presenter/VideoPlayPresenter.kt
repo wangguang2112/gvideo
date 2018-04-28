@@ -1,10 +1,14 @@
 package com.wang.gvideo.migu.presenter
 
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.util.Base64
 import android.util.Log
+import android.view.View
 import android.widget.Toast
+import com.hpplay.callback.HpplayWindowPlayCallBack
+import com.hpplay.link.HpplayLinkControl
 import com.leo.player.media.IjkVideoManager
 import com.leo.player.media.StateChangeListener
 import com.leo.player.media.controller.OnMoreInfoClickListener
@@ -20,6 +24,7 @@ import com.wang.gvideo.migu.api.WapMiGuInter
 import com.wang.gvideo.migu.cache.CacheManager
 import com.wang.gvideo.migu.constant.BusKey
 import com.wang.gvideo.migu.dao.model.ViewVideoDao
+import com.wang.gvideo.migu.model.AppSearchListItem
 import com.wang.gvideo.migu.model.VideoInfoModel
 import com.wang.gvideo.migu.setting.Prefences
 import com.wang.gvideo.migu.ui.dialog.SelectDefinitionDialog
@@ -44,7 +49,7 @@ import javax.inject.Inject
  *
  * @author wangguang.
  */
-class VideoPlayPresenter @Inject constructor(activity: VideoPlayActivity) : BasePresenter<VideoPlayActivity>(activity), OnMoreInfoClickListener, StateChangeListener {
+class VideoPlayPresenter @Inject constructor(activity: VideoPlayActivity) : BasePresenter<VideoPlayActivity>(activity), OnMoreInfoClickListener, StateChangeListener,View.OnClickListener {
 
     var infoModel: VideoInfoModel? = null
     var seasonList: List<Pair<String, String>>? = null
@@ -112,8 +117,8 @@ class VideoPlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
 
     private fun getVideoInfo(contId: String) {
         val s = ApiFactory.INSTANCE()
-                .createApiWithCookie(WapMiGuInter::class.java,
-                        ApiFactory.createCookie("www.miguvideo.com", "UserInfo", "982324173|772E524A40FA31D9F78D"))
+                .createApi(WapMiGuInter::class.java)
+//                        ApiFactory.createCookie("www.miguvideo.com", "UserInfo", "982324173|772E524A40FA31D9F78D"))
                 .getVideoInfo(contId)
                 .subscribeOn(Schedulers.io())
                 .map {
@@ -218,5 +223,43 @@ class VideoPlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
             }
         }
     }
+    private fun showWirelessToTvDialog() {
+        infoModel?.let { model ->
+            activity.pauseVideo()
+            HpplayLinkControl.getInstance().showHpplayWindow(activity,model.definitionUrl(Prefences.getDefiniitionPrefence()) , activity.getNowPosition() / 1000, object : HpplayWindowPlayCallBack {
+                override fun onIsConnect(p0: Boolean) {
+                    var msg = ""
+                    if (p0) {
+                        msg = "已连接"
+                    } else {
+                        msg = "连接已断开"
+                    }
+                    showMsg(msg)
+                }
+
+                override fun onIsPlaySuccess(p0: Boolean) {
+                    showMsg("正在播放中")
+                }
+
+                override fun onHpplayWindowDismiss() {
+//                    showMsg("关闭")
+                }
+
+            }, HpplayLinkControl.PUSH_VIDEO)
+        }
+    }
+
+    override fun onClick(p0: View?) {
+        p0?.let {
+            when (p0.tag) {
+                VideoPlayActivity.TAG_WIRELESS -> {
+                    showWirelessToTvDialog()
+                }
+                else -> {
+                }
+            }
+        }
+    }
+
 
 }
