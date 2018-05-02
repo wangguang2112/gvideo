@@ -10,6 +10,9 @@ import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.Toast
+import com.github.jdsjlzx.interfaces.OnRefreshListener
+import com.github.jdsjlzx.recyclerview.LRecyclerView
+import com.github.jdsjlzx.recyclerview.LRecyclerViewAdapter
 import com.tapadoo.alerter.Alerter
 import com.wang.gvideo.R
 import com.wang.gvideo.common.base.BaseActivity
@@ -24,6 +27,7 @@ import com.wang.gvideo.migu.dao.CollectManager
 import com.wang.gvideo.migu.dao.model.ViewVideoDao
 import com.wang.gvideo.migu.ui.adapter.CollectAdapter
 import com.wang.gvideo.migu.ui.adapter.HistoryAdapter
+import com.wang.gvideo.migu.ui.adapter.SingleAdapter
 import kotlinx.android.synthetic.main.activity_video_first.*
 import rx.android.schedulers.AndroidSchedulers
 
@@ -53,10 +57,23 @@ class VideoFirstAcitivity : BaseActivity() {
         video_first_history_list.overScrollMode = View.OVER_SCROLL_NEVER
         video_first_collect_list.overScrollMode = View.OVER_SCROLL_NEVER
         video_first_collect_list.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        video_first_recommond_list.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         initHeadBar()
         getHistoryData()
         getCollectData()
         initEvent()
+        var list = mutableListOf<String>()
+        repeat(100){
+            list.add("$it")
+        }
+        video_first_recommond_list.setRefreshHeader(GRefreshHeader(this))
+        video_first_recommond_list.adapter = LRecyclerViewAdapter(SingleAdapter(this,list))
+        video_first_recommond_list.setOnRefreshListener(OnRefreshListener {
+            Log.d(TAG,"OnRefreshListener")
+            mainHandler.post {
+                video_first_recommond_list.refreshComplete(10)
+            }
+        })
     }
 
     private fun initEvent() {
@@ -131,6 +148,7 @@ class VideoFirstAcitivity : BaseActivity() {
             }
         }
     }
+
     private fun getCollectData() {
         setOnBusy(true)
         autoUnSubscribe {
@@ -140,7 +158,7 @@ class VideoFirstAcitivity : BaseActivity() {
                     }
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe {
-                        Log.d(TAG, it.string())
+//                        Log.d(TAG, it.string())
                         if (it.isNotEmpty()) {
                             if (collectAdapter == null) {
                                 collectAdapter = CollectAdapter(this, it.toMutableList()) { _, parent, data, _, childPos ->

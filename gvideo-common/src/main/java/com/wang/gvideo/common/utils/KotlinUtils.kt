@@ -2,6 +2,7 @@ package com.wang.gvideo.common.utils
 
 import com.google.gson.Gson
 import org.json.JSONObject
+import java.lang.ref.WeakReference
 
 /**
  * Date:2018/4/4
@@ -27,7 +28,7 @@ inline infix fun <T : Any> T?.nil(block: (T?) -> T): T {
 /**
  * 选择性替换某些List的元素
  */
-inline  infix fun <T> Iterable<T>.toList(block: (T) -> T): List<T> {
+inline infix fun <T> Iterable<T>.toList(block: (T) -> T): List<T> {
     if (this is Collection) {
         return when (size) {
             0 -> emptyList()
@@ -131,7 +132,7 @@ fun <T : Any> List<T>?.string(): String {
                     || value is CharSequence) {
                 result.append(value)
                 result.append(",")
-            }else{
+            } else {
                 result.append(value.toString())
                 result.append(",")
             }
@@ -202,4 +203,25 @@ fun <T : Any> Map<String, T>?.toJson(): JSONObject {
  */
 fun <T : Any> Map<String, T>?.string(): String {
     return toJson().toString(0)
+}
+
+/******************************************* WeakReference 内联函数**********************************************/
+
+inline infix fun <T : Any> WeakReference<T>?.value(block: (T) -> Unit) {
+    if (this != null) {
+        var t = this.get()
+        if(t!=null){
+            block(t)
+        }
+    }
+}
+
+inline fun <T : Any> WeakReference<T>?.getValue(): T? {
+    if (this != null) {
+        var value = this.get()
+        if (value != null) {
+            return value
+        }
+    }
+    return null
 }
