@@ -48,4 +48,23 @@ interface MiGuMovieInter {
             @Query("filterType") filterType: Int = 3,
             @Query("cid") cid: String = "50142",
             @Query("nt") nt: Int = 4): Observable<String>
+
+
+    @POST("/iworld/publish/clt/resource/migumovie4/search/searchData.jsp")
+    @FormUrlEncoded
+    fun getMovieFilteData(
+            @Field("currentPage") currentPage: Int = 1,
+            @Field("mediaType") mediaType: String = "",
+            @Field("order") order: String = "最热",
+            @Field("mediaYear") mediaYear: String = "",
+            @Field("mediaArea") mediaArea: String = "",
+            @Field("pageSize") pageSize: String = "30",
+            @Field("from") from: String = "videoBank",
+            @Query("playerType") playerType: Int = 4,
+            @Query("sdkVersion") sdkVersion: String = "64.00.00.14",
+            @Query("res") res: String = "EXDPI",
+            @Query("clientId") clientId: String = "3db191e8cfe3acd0c4abb76fcb3b9486",
+            @Query("filterType") filterType: Int = 3,
+            @Query("cid") cid: String = "50142",
+            @Query("nt") nt: Int = 4): Observable<String>
 }

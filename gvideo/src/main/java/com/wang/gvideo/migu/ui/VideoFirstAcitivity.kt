@@ -2,14 +2,18 @@ package com.wang.gvideo.migu.ui
 
 import android.app.ActivityOptions
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.support.v7.app.ActionBar
+import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.transition.Fade
 import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.Toast
+import com.github.jdsjlzx.ItemDecoration.GridItemDecoration
+import com.github.jdsjlzx.interfaces.OnLoadMoreListener
 import com.github.jdsjlzx.interfaces.OnRefreshListener
 import com.github.jdsjlzx.recyclerview.LRecyclerView
 import com.github.jdsjlzx.recyclerview.LRecyclerViewAdapter
@@ -19,17 +23,26 @@ import com.wang.gvideo.common.base.BaseActivity
 import com.wang.gvideo.common.bus.RxBus
 import com.wang.gvideo.common.bus.event.SimpleEvent
 import com.wang.gvideo.common.dao.DataCenter
+import com.wang.gvideo.common.net.ApiFactory
+import com.wang.gvideo.common.net.OneSubScriber
+import com.wang.gvideo.common.utils.DensityUtil
 import com.wang.gvideo.common.utils.nil
 import com.wang.gvideo.common.utils.string
+import com.wang.gvideo.common.view.RecyclerViewDivider
 import com.wang.gvideo.common.view.alert.AlertView
+import com.wang.gvideo.migu.api.MiGuMovieInter
 import com.wang.gvideo.migu.constant.BusKey
 import com.wang.gvideo.migu.dao.CollectManager
 import com.wang.gvideo.migu.dao.model.ViewVideoDao
+import com.wang.gvideo.migu.model.MovieItem
+import com.wang.gvideo.migu.model.MovieItemList
 import com.wang.gvideo.migu.ui.adapter.CollectAdapter
 import com.wang.gvideo.migu.ui.adapter.HistoryAdapter
+import com.wang.gvideo.migu.ui.adapter.RecommondAdapter
 import com.wang.gvideo.migu.ui.adapter.SingleAdapter
 import kotlinx.android.synthetic.main.activity_video_first.*
 import rx.android.schedulers.AndroidSchedulers
+import rx.schedulers.Schedulers
 
 
 /**
@@ -43,9 +56,12 @@ class VideoFirstAcitivity : BaseActivity() {
 
     var historyAdapter: HistoryAdapter? = null
     var collectAdapter: CollectAdapter? = null
+    var recommondAdapter: RecommondAdapter? = null
 
     private var isNeedRefreshHistory = false
     private var isNeedRefreshCollect = false
+
+    private var currentPage = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,23 +73,29 @@ class VideoFirstAcitivity : BaseActivity() {
         video_first_history_list.overScrollMode = View.OVER_SCROLL_NEVER
         video_first_collect_list.overScrollMode = View.OVER_SCROLL_NEVER
         video_first_collect_list.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        video_first_recommond_list.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         initHeadBar()
         getHistoryData()
         getCollectData()
         initEvent()
-        var list = mutableListOf<String>()
-        repeat(100){
-            list.add("$it")
-        }
+        initRecommond()
+    }
+
+    private fun initRecommond() {
+        video_first_recommond_list.layoutManager = GridLayoutManager(this,3, LinearLayoutManager.VERTICAL, false)
+       /* video_first_recommond_list.addItemDecoration(RecyclerViewDivider(this@VideoFirstAcitivity,LinearLayoutManager.HORIZONTAL,
+                DensityUtil.dip2px(this,1f), resources.getColor(R.color.background_color)))*/
         video_first_recommond_list.setRefreshHeader(GRefreshHeader(this))
-        video_first_recommond_list.adapter = LRecyclerViewAdapter(SingleAdapter(this,list))
         video_first_recommond_list.setOnRefreshListener(OnRefreshListener {
-            Log.d(TAG,"OnRefreshListener")
-            mainHandler.post {
-                video_first_recommond_list.refreshComplete(10)
-            }
+            Log.d(TAG, "OnRefreshListeneer")
+            currentPage = 1
+            getRecommondList(currentPage)
         })
+        video_first_recommond_list.setOnLoadMoreListener(OnLoadMoreListener {
+            Log.d(TAG, "OnRefreshListener")
+            getRecommondList(++currentPage)
+        })
+        setOnBusy(true)
+        getRecommondList(currentPage)
     }
 
     private fun initEvent() {
@@ -85,11 +107,11 @@ class VideoFirstAcitivity : BaseActivity() {
         }
         autoUnSubscribe {
             RxBus.instance().toObservableOnMain(BusKey.UPDATE_COLLECT_LIST)
-                    .subscribe {event ->
-                        if(event is SimpleEvent<*>){
+                    .subscribe { event ->
+                        if (event is SimpleEvent<*>) {
                             val contId = event.attachObj as String
                             updateSingleCollectData(contId)
-                        }else{
+                        } else {
                             isNeedRefreshCollect = true
                         }
 
@@ -102,7 +124,7 @@ class VideoFirstAcitivity : BaseActivity() {
         autoUnSubscribe {
             DataCenter.instance().queryListWithSort(ViewVideoDao::class, "time")
                     .doOnTerminate {
-                        setOnBusy(false)
+//                        setOnBusy(false)
                     }
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe {
@@ -138,12 +160,12 @@ class VideoFirstAcitivity : BaseActivity() {
         }
     }
 
-    private fun updateSingleCollectData(contId:String){
+    private fun updateSingleCollectData(contId: String) {
         collectAdapter?.let { adaper ->
-           val pos = adaper.collectList.indexOfFirst {
+            val pos = adaper.collectList.indexOfFirst {
                 it.contId == contId
             }
-            if(pos != -1) {
+            if (pos != -1) {
                 adaper.notifyItemChanged(pos)
             }
         }
@@ -154,11 +176,11 @@ class VideoFirstAcitivity : BaseActivity() {
         autoUnSubscribe {
             CollectManager.manager.getCollectData()
                     .doOnTerminate {
-                        setOnBusy(false)
+//                        setOnBusy(false)
                     }
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe {
-//                        Log.d(TAG, it.string())
+                        //                        Log.d(TAG, it.string())
                         if (it.isNotEmpty()) {
                             if (collectAdapter == null) {
                                 collectAdapter = CollectAdapter(this, it.toMutableList()) { _, parent, data, _, childPos ->
@@ -274,4 +296,50 @@ class VideoFirstAcitivity : BaseActivity() {
     }
 
 
+    private fun getRecommondList(page: Int) {
+        doHttp(MiGuMovieInter::class.java)
+                .getMovieFilteData(page)
+                .subscribeOn(Schedulers.io())
+                .doOnTerminate { setOnBusy(false) }
+                .observeOn(AndroidSchedulers.mainThread())
+                .map {
+                    val result = it.replace(Regex(",[\\s]*\\}|,[\\s]*\\]")) {
+                        if (it.value.takeLast(1) == "}") {
+                            "}"
+                        } else {
+                            "]"
+                        }
+                    }
+                    ApiFactory.INSTANCE().getGson().fromJson(result, MovieItemList::class.java)
+                }.subscribe(object : OneSubScriber<MovieItemList>() {
+                    override fun onNext(t: MovieItemList) {
+                        super.onNext(t)
+                        if(recommondAdapter == null) {
+                            recommondAdapter = RecommondAdapter(this@VideoFirstAcitivity, t.searchResult.toMutableList())
+                            { _: View, movieItem: MovieItem, _: Int ->
+                                VideoPlayHelper.startSingleVideoPlay(this@VideoFirstAcitivity, movieItem.contentId)
+                            }
+                            video_first_recommond_list.adapter = LRecyclerViewAdapter(recommondAdapter)
+                            video_first_recommond_list.setLoadMoreEnabled(true)
+                        }else{
+                            if(page == 1){
+                                recommondAdapter?.recommondList?.clear()
+                                recommondAdapter?.recommondList?.addAll(t.searchResult)
+                                recommondAdapter?.notifyDataSetChanged()
+                            }else{
+                                val start = recommondAdapter?.recommondList?.size?:0
+                                recommondAdapter?.recommondList?.addAll(t.searchResult)
+                                recommondAdapter?.notifyItemRangeInserted(start,t.searchResult.size)
+                            }
+
+                        }
+                        video_first_recommond_list.refreshComplete(t.searchResult.size)
+                    }
+
+                    override fun onError(e: Throwable) {
+                        super.onError(e)
+                        video_first_recommond_list.refreshComplete(0)
+                    }
+                })
+    }
 }

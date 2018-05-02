@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:fresco="http://schemas.android.com/apk/res-auto"
+              android:orientation="vertical"
+              android:layout_gravity="center_horizontal"
+              android:layout_width="120dp"
+              android:background="@color/white"
+              android:layout_height="184dp">
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <com.facebook.drawee.view.SimpleDraweeView
+            android:id="@+id/video_recommond_image"
+            fresco:actualImageScaleType="centerInside"
+            fresco:failureImage="@android:drawable/ic_delete"
+            fresco:failureImageScaleType="focusCrop"
+            android:layout_width="120dp"
+            android:layout_height="160dp"/>
+        <TextView
+            android:id="@+id/video_recommond_score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_size_11"
+            android:layout_marginBottom="6dp"
+            android:layout_marginRight="6dp"
+            android:singleLine="true"
+            android:layout_gravity="bottom|right"
+            android:text="9.0"/>
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/video_recomond_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/normal_text"
+        android:textSize="13sp"
+        android:layout_marginTop="2dp"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:gravity="center_horizontal"
+        android:singleLine="true"
+        android:text="名字"/>
+
+</LinearLayout>

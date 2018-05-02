@@ -93,7 +93,7 @@ class FirstBehavior(val context: Context, attrs: AttributeSet?) : CoordinatorLay
         }
         if(!consumed){
            return onUserStopDragging(velocityY)
-        }else if(consumed && child.scrollY == 0){
+        }else if(consumed && !child.canScrollVertically(-1)){
             return onUserStopDragging(velocityY/3)
         }
         return false
