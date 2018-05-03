@@ -1,6 +1,7 @@
 package com.wang.gvideo.migu.ui
 
 import android.os.Bundle
+import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
@@ -28,6 +29,7 @@ import com.wang.gvideo.migu.component.DaggerVideoSearchComponent
 import com.wang.gvideo.migu.constant.Config
 import com.wang.gvideo.migu.dao.CollectManager
 import com.wang.gvideo.migu.model.*
+import com.wang.gvideo.migu.ui.adapter.RecommondAdapter
 import com.wang.gvideo.migu.ui.adapter.SingleAdapter
 import com.wang.gvideo.migu.ui.adapter.VideoListAdapter
 import kotlinx.android.synthetic.main.activity_video_search.*
@@ -95,10 +97,10 @@ class VideoSearchActivity : BaseActivity() {
         })
         resultList.visibility = View.GONE
         video_search_movie_list.visibility = View.GONE
-        video_search_movie_list.adapter = SingleAdapter(this,movieList.map { it.contentName }.toMutableList()){ pos,title ->
-            VideoPlayHelper.startSingleVideoPlay(this,movieList[pos].contentId)
+        video_search_movie_list.adapter = RecommondAdapter(this,movieList){ _,item,_ ->
+            VideoPlayHelper.startSingleVideoPlay(this,item.contentId)
         }
-        video_search_movie_list.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
+        video_search_movie_list.layoutManager = GridLayoutManager(this,3,LinearLayoutManager.VERTICAL,false)
         movie_search_list_bt.setOnClickListener {
             if(video_search_movie_list.visibility == View.VISIBLE) {
                 video_search_movie_list.visibility = View.GONE
@@ -109,9 +111,9 @@ class VideoSearchActivity : BaseActivity() {
                 this.title = "电影列表"
                 resultList.visibility = View.GONE
                 if(needRefresh){
-                   val adapter = video_search_movie_list.adapter as SingleAdapter
-                    adapter.data.clear()
-                    adapter.data.addAll(movieList.map { "${it.contentName} : cid = ${it.contentId}" })
+                   val adapter = video_search_movie_list.adapter as RecommondAdapter
+//                    adapter.recommondList.clear()
+//                    adapter.recommondList.addAll(movieList)
                     adapter.notifyDataSetChanged()
                     needRefresh  = false
                 }

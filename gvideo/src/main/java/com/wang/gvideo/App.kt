@@ -33,6 +33,7 @@ class App : Application() {
         Realm.init(this)
         val config = RealmConfiguration.Builder()
                 .deleteRealmIfMigrationNeeded()
+                .schemaVersion(0)
                 .build()
         Realm.setDefaultConfiguration(config)
         HpplayLinkControl.getInstance().initHpplayLink(this, Config.LEBO_WIRE_SCREEN_ID)

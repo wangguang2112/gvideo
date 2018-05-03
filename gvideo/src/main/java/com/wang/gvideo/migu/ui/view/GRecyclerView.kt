@@ -1,4 +1,4 @@
-package com.wang.gvideo.migu.ui
+package com.wang.gvideo.migu.ui.view
 
 import android.content.Context
 import android.support.design.widget.AppBarLayout

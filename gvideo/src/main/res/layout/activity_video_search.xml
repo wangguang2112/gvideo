@@ -67,8 +67,8 @@
         android:layout_marginTop="10dp"
         android:id="@+id/video_search_movie_list"
         android:layout_below="@id/video_search_layout"
-        android:layout_marginLeft="@dimen/padding_15_dp"
-        android:layout_marginRight="@dimen/padding_15_dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
         android:layout_width="match_parent"
         android:visibility="gone"
         android:layout_height="match_parent">

@@ -15,14 +15,18 @@ import com.leo.player.media.controller.OnMoreInfoClickListener
 import com.wang.gvideo.common.base.BasePresenter
 import com.wang.gvideo.common.bus.RxBus
 import com.wang.gvideo.common.dao.DataCenter
+import com.wang.gvideo.common.dao.IDaoAdapter
 import com.wang.gvideo.common.net.ApiFactory
 import com.wang.gvideo.common.net.OneSubScriber
 import com.wang.gvideo.common.utils.empty
 import com.wang.gvideo.common.utils.nil
+import com.wang.gvideo.common.utils.notEmptyRun
 import com.wang.gvideo.common.utils.safeGetRun
 import com.wang.gvideo.migu.api.WapMiGuInter
 import com.wang.gvideo.migu.cache.CacheManager
 import com.wang.gvideo.migu.constant.BusKey
+import com.wang.gvideo.migu.dao.CollectManager
+import com.wang.gvideo.migu.dao.model.SeasonInfoDao
 import com.wang.gvideo.migu.dao.model.ViewVideoDao
 import com.wang.gvideo.migu.model.AppSearchListItem
 import com.wang.gvideo.migu.model.VideoInfoModel
@@ -31,6 +35,7 @@ import com.wang.gvideo.migu.ui.dialog.SelectDefinitionDialog
 import com.wang.gvideo.migu.ui.dialog.SelectDownloadDialog
 import com.wang.gvideo.migu.ui.dialog.SelectSeasonDialog
 import com.wang.gvideo.migu.ui.VideoPlayActivity
+import com.wang.gvideo.migu.ui.VideoPlayHelper
 import com.wang.gvideo.migu.ui.VideoPlayHelper.VIDEO_CONT_ID
 import com.wang.gvideo.migu.ui.VideoPlayHelper.VIDEO_CONT_ID_POS
 import com.wang.gvideo.migu.ui.VideoPlayHelper.VIDEO_CONT_PLAY_POS
@@ -55,6 +60,8 @@ class VideoPlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
     var seasonList: List<Pair<String, String>>? = null
     var position = 0
     var playPosition = 0
+    /** 剧集更新时是否更新数据库 */
+    var needUpdateSeason = false
     override fun onCreate() {
         super.onCreate()
         val contId = activity.intent.getStringExtra(VIDEO_CONT_ID)
@@ -63,6 +70,7 @@ class VideoPlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
         }
         playPosition = activity.intent.getIntExtra(VIDEO_CONT_PLAY_POS,0)
         position = activity.intent.getIntExtra(VIDEO_CONT_ID_POS, 0)
+        needUpdateSeason = activity.intent.getBooleanExtra(VideoPlayHelper.VIDEO_WITH_SEASON_UPDATE, false)
         if (contId.isNotEmpty()) {
             getVideoInfo(contId)
         }
@@ -146,16 +154,8 @@ class VideoPlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
                         super.onNext(t)
                         infoModel = t
                         //使用内置的分集
-                        if(seasonList == null){
-                            seasonList = infoModel?.getSeasonPairs()
-                            if(!seasonList.empty()){
-                                seasonList?.forEachIndexed { index, i ->
-                                    if(i.first == contId){
-                                        position = index
-                                        return@forEachIndexed
-                                    }
-                                }
-                            }
+                        infoModel?.let {
+                            updateSeason(it.contId,needUpdateSeason)
                         }
                         val url = t.definitionUrl(Prefences.getDefiniitionPrefence()) {
                             infoModel?.definPos = it
@@ -259,6 +259,67 @@ class VideoPlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
                 }
             }
         }
+    }
+
+
+    /**
+     * 更新剧集
+     * @param updateDao 是否更新数据库
+     */
+    private fun updateSeason(contId: String, updateDao: Boolean = false) {
+        //使用内置的分集
+        if (seasonList == null) {
+            seasonList = infoModel?.getSeasonPairs()
+            if (!seasonList.empty()) {
+                seasonList?.forEachIndexed { index, i ->
+                    if (i.first == contId) {
+                        position = index
+                        return@forEachIndexed
+                    }
+                }
+            }
+            if (updateDao) {
+                seasonList?.let { season ->
+                    addSeasonList(contId, season.mapIndexed { index, pair ->
+                        Triple(pair.first,pair.second,position) } )
+                }
+                needUpdateSeason = false
+                RxBus.instance().postSingleEvent(BusKey.UPDATE_COLLECT_LIST,contId)
+            }
+        }else{
+            if(updateDao) {
+                val newSeasonList = infoModel?.getSeasonPairs()
+                newSeasonList.notEmptyRun {
+                    if (it is List) {
+                        if (seasonList!!.size < it.size) {
+                            val tripleList = it.mapIndexed { index, pair ->
+                                Triple(pair.first,pair.second,position) }
+                            val subList = tripleList.subList(seasonList!!.size, tripleList.size - 1)
+                            addSeasonList(contId, subList)
+                        }
+                    }
+                }
+                RxBus.instance().postSingleEvent(BusKey.UPDATE_COLLECT_LIST,contId)
+                needUpdateSeason = false
+            }
+        }
+    }
+
+    private fun addSeasonList(nodeId: String, list: List<Triple<String, String,Int>>) {
+        CollectManager.manager.collectSeasonList(list, object : IDaoAdapter<Triple<String, String, Int>, SeasonInfoDao> {
+            override fun adapt(t: Triple<String, String,Int>): SeasonInfoDao {
+                return SeasonInfoDao(t.first, t.second, nodeId,t.third)
+            }
+
+            override fun reAdapt(t: SeasonInfoDao?): Triple<String, String,Int>? {
+                if (t != null) {
+                    return Triple(t.contId, t.name,t.position)
+                }
+                return null
+            }
+
+        })
+
     }
 
 

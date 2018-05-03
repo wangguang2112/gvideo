@@ -1,4 +1,4 @@
-package com.wang.gvideo.migu.ui
+package com.wang.gvideo.migu.ui.view
 
 import android.animation.ValueAnimator
 import android.content.Context

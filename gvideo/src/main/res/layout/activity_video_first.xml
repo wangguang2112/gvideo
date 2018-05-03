@@ -89,7 +89,7 @@
             android:text="热门推荐"/>
     </LinearLayout>
 
-    <com.wang.gvideo.migu.ui.GRecyclerView
+    <com.wang.gvideo.migu.ui.view.GRecyclerView
         android:id="@+id/video_first_recommond_list"
         android:layout_width="match_parent"
         android:visibility="visible"

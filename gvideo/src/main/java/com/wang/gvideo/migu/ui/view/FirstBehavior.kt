@@ -1,4 +1,4 @@
-package com.wang.gvideo.migu.ui
+package com.wang.gvideo.migu.ui.view
 
 import android.content.Context
 import android.support.design.widget.CoordinatorLayout
@@ -22,6 +22,9 @@ import java.lang.ref.WeakReference
 class FirstBehavior(val context: Context, attrs: AttributeSet?) : CoordinatorLayout.Behavior<View>(context, attrs) {
 
     private val DEBUG = false
+
+
+
     private var scroller = Scroller(context)
     private var dependentView: WeakReference<View>? = null
     private var isScrolling = false
