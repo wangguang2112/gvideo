@@ -49,4 +49,11 @@
         <item name="android:windowExitAnimation">@anim/dialog_right_out</item>
     </style>
 
+    <!--弹窗动画-->
+    <style name="PopowAnim" parent="android:Animation">
+        <!--//进入时的动画-->
+        <item name="android:windowEnterAnimation">@anim/popwin_in</item>
+        <!--//退出时的动画-->
+        <item name="android:windowExitAnimation">@anim/popwin_out</item>
+    </style>
 </resources>

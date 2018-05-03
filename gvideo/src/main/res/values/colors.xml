@@ -111,5 +111,7 @@
     <!-- 红色文字 -->
     <color name="dark_text">#333333</color>
 
+    <!-- 灰色背景 -->
+    <color name="dialog_background">#cc000000</color>
 
 </resources>
