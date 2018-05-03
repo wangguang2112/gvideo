@@ -95,7 +95,7 @@
         android:visibility="visible"
         app:layout_anchor="@id/video_first_header"
         android:overScrollMode="never"
-        app:layout_behavior="com.wang.gvideo.migu.ui.FirstBehavior"
+        app:layout_behavior="com.wang.gvideo.migu.ui.view.FirstBehavior"
         android:layout_height="match_parent"/>
 
 </android.support.design.widget.CoordinatorLayout>

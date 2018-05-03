@@ -1,8 +1,6 @@
 package com.wang.gvideo.migu.component
 
-import android.content.Context
 import com.wang.gvideo.migu.ui.VideoPlayActivity
-import com.wang.gvideo.migu.ui.VideoSearchActivity
 import dagger.BindsInstance
 import dagger.Component
 

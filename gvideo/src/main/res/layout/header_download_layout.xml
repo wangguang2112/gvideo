@@ -3,16 +3,6 @@
               android:orientation="horizontal"
               android:layout_width="wrap_content"
               android:layout_height="match_parent">
-
-    <ImageView
-        android:id="@+id/header_right_ic2"
-        android:layout_width="23dp"
-        android:layout_height="23dp"
-        android:scaleType="centerInside"
-        android:transitionName="transition"
-        android:layout_gravity="center_vertical"
-        android:src="@drawable/search_white"/>
-
     <ImageView
         android:id="@+id/header_right_ic"
         android:layout_width="23dp"
@@ -20,5 +10,5 @@
         android:layout_marginRight="15dp"
         android:scaleType="centerInside"
         android:layout_gravity="center_vertical"
-        android:src="@drawable/plus_white"/>
+        android:src="@drawable/edit"/>
 </LinearLayout>

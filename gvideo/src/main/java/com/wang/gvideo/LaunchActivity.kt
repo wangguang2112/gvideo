@@ -33,33 +33,6 @@ class LaunchActivity : BaseActivity() {
         }, 2000)
         animation_view.setOnClickListener {
             startLaunch()
-           /* DataCenter.instance().insert( SeasonInfoDao("1","1","1"))
-            DataCenter.instance().insert( SeasonInfoDao("2","1","1"))
-            DataCenter.instance().insert( SeasonInfoDao("3","1","1"))
-            DataCenter.instance().insert( SeasonInfoDao("4","1","1"))
-            DataCenter.instance().queryList(SeasonInfoDao::class)
-                   .subscribe {
-                       Log.d(TAG,it.string())
-                   }
-            DataCenter.instance().delete(SeasonInfoDao::class,"1")
-            DataCenter.instance().query(SeasonInfoDao::class,"2")?.let {
-                Log.d(TAG,it.toString())
-            }
-            DataCenter.instance().delete(SeasonInfoDao::class,"2")
-            DataCenter.instance().exist(SeasonInfoDao::class,"2").let {
-                Log.d(TAG,it.toString())
-            }
-            DataCenter.instance().exist(SeasonInfoDao::class,"4").let {
-                Log.d(TAG,it.toString())
-            }
-
-            DataCenter.instance().query(SeasonInfoDao::class,"3")?.let {
-                Log.d(TAG,it.toString())
-            }
-            DataCenter.instance().queryList(SeasonInfoDao::class)
-                    .subscribe {
-                        Log.d(TAG,it.string())
-                    }*/
         }
     }
 

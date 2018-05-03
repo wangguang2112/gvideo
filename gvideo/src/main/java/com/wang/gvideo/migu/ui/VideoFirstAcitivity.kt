@@ -20,7 +20,6 @@ import com.wang.gvideo.common.base.BaseActivity
 import com.wang.gvideo.common.bus.RxBus
 import com.wang.gvideo.common.bus.event.SimpleEvent
 import com.wang.gvideo.common.dao.DataCenter
-import com.wang.gvideo.common.dao.IDaoAdapter
 import com.wang.gvideo.common.net.ApiFactory
 import com.wang.gvideo.common.net.OneSubScriber
 import com.wang.gvideo.common.utils.empty
@@ -57,6 +56,9 @@ class VideoFirstAcitivity : BaseActivity() {
 
     private var isNeedRefreshHistory = false
     private var isNeedRefreshCollect = false
+
+    lateinit var firstView:View
+    lateinit var secondView:View
 
     private var currentPage = 1
 
@@ -223,28 +225,11 @@ class VideoFirstAcitivity : BaseActivity() {
         window.exitTransition = Fade()
         supportActionBar?.apply {
             val headerView = LayoutInflater.from(this@VideoFirstAcitivity).inflate(R.layout.header_first_layout, null)
-            val firstView = headerView.findViewById<ImageView>(R.id.header_right_ic)
+            firstView = headerView.findViewById<ImageView>(R.id.header_right_ic)
+            secondView = headerView.findViewById<ImageView>(R.id.header_right_ic2)
             firstView.setOnClickListener {
-                AlertView.Builder()
-                        .setContext(this@VideoFirstAcitivity)
-                        .setStyle(AlertView.Style.Alert)
-                        .setTitle("添加视频cid")
-                        .setMessage(null)
-                        .setCancelText("取消")
-                        .setDestructive("播放")
-                        .setWithEditor("请输入cid") { text ->
-                            text.toIntOrNull()?.let { VideoPlayHelper.startSingleVideoPlay(this@VideoFirstAcitivity, it.toString()) }.nil {
-                                Alerter.create(this@VideoFirstAcitivity)
-                                        .setTitle("提示")
-                                        .setText("请输入正确的cid")
-                                        .setBackgroundColorRes(R.color.toast_background)
-                                        .setDuration(1000)
-                                        .show()
-                            }
-                        }
-                        .build().show()
+                showOpenCidDialog()
             }
-            val secondView = headerView.findViewById<ImageView>(R.id.header_right_ic2)
             secondView.setOnClickListener {
                 startActivity(Intent(this@VideoFirstAcitivity, VideoSearchActivity::class.java)
                         , ActivityOptions.makeSceneTransitionAnimation(this@VideoFirstAcitivity, it, "transition")
@@ -255,6 +240,34 @@ class VideoFirstAcitivity : BaseActivity() {
             displayOptions = displayOptions or ActionBar.DISPLAY_SHOW_CUSTOM
             setCustomView(headerView, parmas)
             title = "主页"
+        }
+    }
+
+    private fun showOpenCidDialog(){
+        val alertView = AlertView.Builder()
+                .setContext(this@VideoFirstAcitivity)
+                .setStyle(AlertView.Style.Alert)
+                .setTitle("添加视频cid")
+                .setMessage(null)
+                .setCancelText("取消")
+                .setDestructive("播放")
+                .setWithEditor("请输入cid") { text ->
+                    text.toIntOrNull()?.let { VideoPlayHelper.startSingleVideoPlay(this@VideoFirstAcitivity, it.toString()) }.nil {
+                        Alerter.create(this@VideoFirstAcitivity)
+                                .setTitle("提示")
+                                .setText("请输入正确的cid")
+                                .setBackgroundColorRes(R.color.toast_background)
+                                .setDuration(1000)
+                                .show()
+                    }
+                }
+                .build()
+        alertView.show()
+        firstView.isClickable = false
+        secondView.isClickable = false
+        alertView.setOnDismissListener {
+            firstView.isClickable = true
+            secondView.isClickable = true
         }
     }
 

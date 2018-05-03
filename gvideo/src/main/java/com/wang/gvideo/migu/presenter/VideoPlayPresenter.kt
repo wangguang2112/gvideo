@@ -116,7 +116,7 @@ class VideoPlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
                             super.onNext(t)
                             SelectDownloadDialog(activity, t) {
                                 Log.d(TAG, it.toString())
-                                CacheManager.intance().downloadNew(t)
+//                                CacheManager.intance().downloadNew(t)
                             }.show()
                         }
                     })

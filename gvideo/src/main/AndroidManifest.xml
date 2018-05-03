@@ -32,6 +32,8 @@
         </activity>
         <activity android:name=".migu.ui.VideoSearchActivity">
         </activity>
+        <activity android:name=".migu.ui.DownloadActivity">
+        </activity>
         <activity
             android:name=".migu.ui.VideoFirstAcitivity"
             android:launchMode="singleTask">
