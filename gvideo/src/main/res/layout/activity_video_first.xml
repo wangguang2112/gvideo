@@ -59,7 +59,10 @@
             android:visibility="visible"
             android:background="@color/white"
             android:layout_height="wrap_content"/>
-
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="@color/white"/>
         <TextView
             android:id="@+id/history_error"
             android:layout_gravity="center"
@@ -72,10 +75,7 @@
             android:maxLines="2"
             android:visibility="gone"
             android:text="暂无播放记录"/>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="5dp"
-            android:background="@color/white"/>
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -72,6 +72,19 @@ inline infix fun <T : Any> Collection<T>?.emptyRun(block: (Collection<T>?) -> Un
     }
 }
 
+inline  fun <T> allNotNil(vararg elements: T?):Boolean {
+    if (elements.isEmpty()) return true else {
+        var result = true
+        elements.forEach {
+            result = result and (it != null)
+            if (!result) {
+                return false
+            }
+        }
+        return result
+    }
+}
+
 /******************************************* String 内联函数**********************************************/
 /**
  * 字符串(空字符串)异常处理 （返回）
