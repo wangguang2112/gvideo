@@ -142,10 +142,17 @@ class VideoFirstAcitivity : BaseActivity() {
                                 historyAdapter = HistoryAdapter(this, it.toMutableList()) { _, data, childPos ->
                                     VideoPlayHelper.startSingleVideoWithPos(this@VideoFirstAcitivity, data?.contId, data.postion)
                                 }
-                                historyAdapter?.deleteListner = { _, data, childPos ->
+                                historyAdapter?.deleteListner = { _, data, _ ->
+                                    val newIndex = historyAdapter?.historyList?.indexOf(data)!!
+                                    historyAdapter?.historyList?.remove(data)
                                     deleteHistory(data.contId)
-                                    historyAdapter?.historyList?.removeAt(childPos)
-                                    historyAdapter?.notifyItemRemoved(childPos)
+                                    if(newIndex >= 0) {
+                                        historyAdapter?.notifyItemRemoved(newIndex)
+                                    }
+                                    if(historyAdapter?.historyList?.size == 0){
+                                        video_first_history_list.visibility = View.GONE
+                                        history_error.visibility = View.VISIBLE
+                                    }
                                 }
                                 video_first_history_list.adapter = historyAdapter
                             } else {
@@ -196,10 +203,17 @@ class VideoFirstAcitivity : BaseActivity() {
                                     VideoPlayHelper.startListVideoPlay(this@VideoFirstAcitivity, data?.contId ?: parent.contId,
                                             parent.subList.map { it.changePair() }, childPos)
                                 }
-                                collectAdapter?.deleteListner = { _, data, childPos ->
+                                collectAdapter?.deleteListner = { _, data, _ ->
+                                    val newIndex = collectAdapter?.collectList?.indexOf(data)!!
+                                    collectAdapter?.collectList?.remove(data)
                                     deleteCollect(data.contId)
-                                    collectAdapter?.collectList?.removeAt(childPos)
-                                    collectAdapter?.notifyItemRemoved(childPos)
+                                    if(newIndex >= 0) {
+                                        collectAdapter?.notifyItemRemoved(newIndex)
+                                    }
+                                    if(collectAdapter?.collectList?.size == 0){
+                                        video_first_collect_list.visibility = View.GONE
+                                        collect_error.visibility = View.VISIBLE
+                                    }
                                 }
                                 video_first_collect_list.adapter = collectAdapter
                             } else {
@@ -210,7 +224,7 @@ class VideoFirstAcitivity : BaseActivity() {
                                 video_first_collect_list.visibility = View.VISIBLE
                                 collect_error.visibility = View.GONE
                             } else {
-                                video_first_history_list.visibility = View.GONE
+                                video_first_collect_list.visibility = View.GONE
                                 collect_error.visibility = View.VISIBLE
                             }
                             collectAdapter?.notifyDataSetChanged()
