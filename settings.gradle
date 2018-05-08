@@ -1,1 +1,1 @@
-include ':gvideo', ':gvideo-common',":player"
+include ':gvideo', ':gvideo-common',":player",":m3u8manger_lib"

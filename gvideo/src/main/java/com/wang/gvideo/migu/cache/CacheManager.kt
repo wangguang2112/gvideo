@@ -1,10 +1,16 @@
 package com.wang.gvideo.migu.cache
 
-import com.hdl.m3u8.M3U8DownloadTask
+import android.os.Environment
 import com.hdl.m3u8.bean.OnDownloadListener
+import com.wang.gvideo.App
+import com.wang.gvideo.common.dao.DataCenter
+import com.wang.gvideo.common.net.OneSubScriber
+import com.wang.gvideo.common.utils.has
+import com.wang.gvideo.migu.dao.model.CacheTaskDao
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
+import java.io.File
 
 
 /**
@@ -21,125 +27,150 @@ class CacheManager {
         }
     }
 
-    private val taskList = mutableMapOf<String,ITask>()
-    private val taskCallBack = mutableMapOf<String,List<OnDownloadListener>>()
-    private val taskVideoId = mutableMapOf<String,String>()
-    private val runningTask = mutableMapOf<String,M3U8DownloadTask>()
-    private val waitTask = mutableMapOf<String,M3U8DownloadTask>()
+    init {
+        //从数据库中读取缓存数据
+        DataCenter.instance().queryWithConditionSort(CacheTaskDao::class, CacheTask::class, "state", "", CacheAdapter())
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe(object : OneSubScriber<List<CacheTask>>() {
+                    override fun onNext(t: List<CacheTask>) {
+                        super.onNext(t)
+                        taskList.putAll(t.map { Pair(it.taskId, it) }.toMap())
+                        taskVideoId.putAll(t.map { Pair(it.contId(), it.taskId) }.toMap())
+                        t.forEach {
+                            taskCallBack[it.taskId] = mutableListOf()
+                        }
+                    }
+                })
+    }
 
-    fun submitNewTask(task:ITask){
-        if(checkHasSubmit(task.contId())){
+    /** 所有提交过的任务数据结构 */
+    private val taskList = mutableMapOf<String, ITask>()
+    /** 下载回调 */
+    private val taskCallBack = mutableMapOf<String, List<OnDownloadListener>>()
+    /** contId 与 TaskId的对应关系 */
+    private val taskVideoId = mutableMapOf<String, String>()
 
-        }else{
-            val id = generateTaskId()
+    private val taskQueue = TaskQueue()
+
+    init {
+        taskQueue.taskChangeListener = { taskId: String, state: ITask.STATE ->
+            val t = taskList[taskId]
+            if (t is CacheTask) {
+                t.state = state
+                //事实更新Task
+                DataCenter.instance().insert(CacheTaskDao::class, t, CacheAdapter())
+            }
+        }
+    }
+
+    fun allTask(): List<ITask> {
+        return taskList.values.toMutableList().sortedBy { it.state() }
+    }
+
+    fun submitNewTask(task: ITask) {
+        if (checkHasSubmit(task.contId())) {
+            taskQueue.resume(task.contId())
+        } else {
+            val id = task.taskId()
+            if (task is CacheTask) {
+                task.path = buildPath(task)
+                DataCenter.instance().insert(CacheTaskDao::class, task, CacheAdapter())
+            }
             taskList[id] = task
             taskCallBack[id] = mutableListOf()
             taskVideoId[task.contId()] = id
-            if(runningTask.size >= 3) {
-                start(id)
-            }
+            taskQueue.submit(task)
+
         }
     }
 
-    fun generateTaskId():String{
-        return System.currentTimeMillis().toString()
-    }
 
-    fun checkHasSubmit(contId:String):Boolean{
+    fun checkHasSubmit(contId: String): Boolean {
         return taskVideoId.containsKey(contId)
     }
 
-    fun resumeTask(contId: String){
-        val id = taskVideoId[contId]
-        if(runningTask[id] == null){
-            id?.let{
-                start(it)
-            }
-        }
-    }
-
-    private fun start(id:String){
-        val task = taskList[id]
-        val callbacks = taskCallBack[id]
-        task?.let {taskModel ->
-            val realTask = M3U8DownloadTask(id)
-            runningTask[id] = realTask
-            realTask.download(taskModel.getUrl(), object : OnDownloadListener {
-                override fun onSuccess() {
-                    callbacks?.forEach {
-                        it.onSuccess()
-                    }
-                }
-
-                override fun onDownloading(itemFileSize: Long, totalTs: Int, curTs: Int) {
-                    callbacks?.forEach {
-                        it.onDownloading(itemFileSize,totalTs,curTs)
-                    }
-                }
-
-                override fun onProgress(curLength: Long) {
-                    callbacks?.forEach {
-                        it.onProgress(curLength)
-                    }
-                }
-
-                override fun onError(errorMsg: Throwable?) {
-                    callbacks?.forEach {
-                        it.onError(errorMsg)
-                    }
-                }
-
-                override fun onStart() {
-                   callbacks?.forEach {
-                       it.onStart()
-                   }
-                }
-
-            })
-        }
-
-    }
-
-    fun checkIsDownload(list: List<Pair<String, String>>): Observable<List<Pair<String, Boolean>>> {
+    fun checkIsDownload(list: List<String>): Observable<List<Pair<String, Boolean>>> {
         return Observable
                 .create<List<Pair<String, Boolean>>> {
                     val result = mutableListOf<Pair<String, Boolean>>()
                     list.forEach {
-                        result.add(Pair(it.first, true))
+                        result.add(Pair(it, !taskVideoId.containsKey(it)))
                     }
-                    result.removeAt(0)
-                    result.add(0, Pair(list.first().first, false))
                     it.onNext(result.toList())
                     it.onCompleted()
                 }
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
     }
 
-    fun downloadNew(list: List<Pair<String, Boolean>>) {
-        val url = ""
-        val task = M3U8DownloadTask("1001")
-        task.download(url, object : OnDownloadListener {
-            override fun onSuccess() {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    fun buildPath(task: ITask): String {
+        if (task is CacheTask) {
+            val rootPath = if (Environment.MEDIA_MOUNTED == Environment.getExternalStorageState() || !Environment.isExternalStorageRemovable()) {
+                App.app.getExternalFilesDir("videoCache").path
+            } else {
+                App.app.getFileStreamPath("videoCache").path
             }
+            return rootPath + File.separator + task.nodeId() + File.separator + task.contId() + ".mp4"
+        }
+        return ""
+    }
 
-            override fun onDownloading(itemFileSize: Long, totalTs: Int, curTs: Int) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    //  test
+    fun addITask(task: ITask) {
+        if (task is CacheTask) {
+            task.state = ITask.STATE.STATE_COMPLETE
+            taskList[task.taskId] = task
+            taskCallBack[task.taskId] = mutableListOf()
+            taskVideoId[task.contId()] = task.taskId
+        }
+    }
+
+    fun pause(contId: String) {
+        taskVideoId.has(contId) {
+            taskQueue.pause(it)
+        }
+
+    }
+
+    fun pauseAll() {
+        taskQueue.pauseAll()
+    }
+
+    fun resume(contId: String) {
+        taskVideoId.has(contId) {
+            taskQueue.resume(it)
+        }
+    }
+
+    fun resumeAll() {
+        taskQueue.resumeAll()
+    }
+
+    fun delete(contId: String) {
+        taskVideoId.has(contId) {
+            val task = taskList.remove(it)
+            task?.let {
+                File(it.path()).deleteOnExit()
             }
+            taskCallBack.remove(it)
+            taskQueue.delete(it)
+        }
+        taskVideoId.remove(contId)
+        DataCenter.instance().delete(CacheTaskDao::class, contId)
+    }
 
-            override fun onProgress(curLength: Long) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
+    fun desotry() {
+        pauseAll()
+        taskQueue.desotry()
+    }
 
-            override fun onError(errorMsg: Throwable?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
+    fun checkVaild(task: ITask): Boolean {
+        return if (task.path().isNotEmpty()) {
+            File(task.path()).exists()
+        } else {
+            false
+        }
 
-            override fun onStart() {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
-
-        })
     }
 }

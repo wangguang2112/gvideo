@@ -29,8 +29,10 @@ import com.wang.gvideo.common.utils.empty
 import com.wang.gvideo.common.utils.nil
 import com.wang.gvideo.common.view.alert.AlertView
 import com.wang.gvideo.migu.api.MiGuMovieInter
+import com.wang.gvideo.migu.cache.CacheManager
 import com.wang.gvideo.migu.constant.BusKey
 import com.wang.gvideo.migu.dao.CollectManager
+import com.wang.gvideo.migu.dao.model.CacheTaskDao
 import com.wang.gvideo.migu.dao.model.RecommondDao
 import com.wang.gvideo.migu.dao.model.ViewVideoDao
 import com.wang.gvideo.migu.model.MovieItem
@@ -449,5 +451,10 @@ class VideoFirstAcitivity : BaseActivity() {
             }
 
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        CacheManager.intance().desotry()
     }
 }

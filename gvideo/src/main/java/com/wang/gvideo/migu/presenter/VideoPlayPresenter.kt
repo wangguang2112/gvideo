@@ -1,8 +1,5 @@
 package com.wang.gvideo.migu.presenter
 
-import android.content.Context
-import android.content.DialogInterface
-import android.content.Intent
 import android.util.Base64
 import android.util.Log
 import android.view.View
@@ -18,12 +15,10 @@ import com.wang.gvideo.common.dao.DataCenter
 import com.wang.gvideo.common.dao.IDaoAdapter
 import com.wang.gvideo.common.net.ApiFactory
 import com.wang.gvideo.common.net.OneSubScriber
-import com.wang.gvideo.common.utils.empty
-import com.wang.gvideo.common.utils.nil
-import com.wang.gvideo.common.utils.notEmptyRun
-import com.wang.gvideo.common.utils.safeGetRun
+import com.wang.gvideo.common.utils.*
 import com.wang.gvideo.migu.api.WapMiGuInter
 import com.wang.gvideo.migu.cache.CacheManager
+import com.wang.gvideo.migu.cache.CacheTask
 import com.wang.gvideo.migu.constant.BusKey
 import com.wang.gvideo.migu.dao.CollectManager
 import com.wang.gvideo.migu.dao.model.SeasonInfoDao
@@ -40,6 +35,7 @@ import com.wang.gvideo.migu.ui.VideoPlayHelper.VIDEO_CONT_ID
 import com.wang.gvideo.migu.ui.VideoPlayHelper.VIDEO_CONT_ID_POS
 import com.wang.gvideo.migu.ui.VideoPlayHelper.VIDEO_CONT_PLAY_POS
 import com.wang.gvideo.migu.ui.VideoPlayHelper.VIDEO_CONT_SEASON_IDS
+import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import java.net.URLDecoder
@@ -54,7 +50,7 @@ import javax.inject.Inject
  *
  * @author wangguang.
  */
-class VideoPlayPresenter @Inject constructor(activity: VideoPlayActivity) : BasePresenter<VideoPlayActivity>(activity), OnMoreInfoClickListener, StateChangeListener,View.OnClickListener {
+class VideoPlayPresenter @Inject constructor(activity: VideoPlayActivity) : BasePresenter<VideoPlayActivity>(activity), OnMoreInfoClickListener, StateChangeListener, View.OnClickListener {
 
     var infoModel: VideoInfoModel? = null
     var seasonList: List<Pair<String, String>>? = null
@@ -62,16 +58,26 @@ class VideoPlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
     var playPosition = 0
     /** 剧集更新时是否更新数据库 */
     var needUpdateSeason = false
+
+    var nativiePath:String? = null
+    var nativieName:String? = null
+
     override fun onCreate() {
         super.onCreate()
         val contId = activity.intent.getStringExtra(VIDEO_CONT_ID)
         activity.intent.getSerializableExtra(VIDEO_CONT_SEASON_IDS)?.let {
-            seasonList = ( it as Array<Pair<String, String>>).toList()
+            seasonList = (it as Array<Pair<String, String>>).toList()
         }
-        playPosition = activity.intent.getIntExtra(VIDEO_CONT_PLAY_POS,0)
+        playPosition = activity.intent.getIntExtra(VIDEO_CONT_PLAY_POS, 0)
         position = activity.intent.getIntExtra(VIDEO_CONT_ID_POS, 0)
         needUpdateSeason = activity.intent.getBooleanExtra(VideoPlayHelper.VIDEO_WITH_SEASON_UPDATE, false)
-        if (contId.isNotEmpty()) {
+        nativiePath = activity.intent.getStringExtra(VideoPlayHelper.VIDEO_NATIVE_NAME_PATH)
+        nativieName = activity.intent.getStringExtra(VideoPlayHelper.VIDEO_NATIVE_NAME)
+        if(nativiePath?.isNotEmpty() == true){
+            activity.mainHandler.post {
+                activity.playNative(nativieName,nativiePath!!)
+            }
+        }else if (contId.isNotEmpty()) {
             getVideoInfo(contId)
         }
     }
@@ -96,35 +102,77 @@ class VideoPlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
     }
 
     private fun showSelectSeasonDialog() {
-        seasonList?.let {
-            SelectSeasonDialog(activity, it, position) { pos, dataItem ->
+        seasonList?.notEmptyRun {
+            SelectSeasonDialog(activity, it as List<Pair<String, String>>, position) { pos, dataItem ->
                 setOnBusy(true)
                 position = pos
                 saveHistory()
                 getVideoInfo(dataItem.first)
             }.show()
-        }.nil { Toast.makeText(activity, "木有了~", Toast.LENGTH_SHORT).show() }
+            return
+        }
+        Toast.makeText(activity, "木有了~", Toast.LENGTH_SHORT).show()
     }
 
     private fun showDownloadDialog() {
-        setOnBusy(true,true)
-        seasonList?.let {
-            CacheManager.intance().checkIsDownload(it)
+        activity.pauseVideo()
+        if(seasonList?.isNotEmpty() == true){
+            CacheManager.intance()
+                    .checkIsDownload(seasonList!!.map { it.first })
                     .doOnTerminate { setOnBusy(false) }
-                    .subscribe(object :OneSubScriber<List<Pair<String, Boolean>>>(){
+                    .subscribe(object : OneSubScriber<List<Pair<String, Boolean>>>() {
                         override fun onNext(t: List<Pair<String, Boolean>>) {
                             super.onNext(t)
                             SelectDownloadDialog(activity, t) {
                                 Log.d(TAG, it.toString())
-//                                CacheManager.intance().downloadNew(t)
+                                downloadList(it.map { it.first })
                             }.show()
+                        }
+                    })
+        }else{
+            infoModel?.let {
+                if(!CacheManager.intance().checkHasSubmit(it.contId)) {
+                    showMsg("开始下载：${it.name.limit(5)}")
+                }else{
+                    showMsg("已经下载中，不要点了~")
+                }
+                CacheManager.intance().submitNewTask(CacheTask.Builder()
+                        .contId(it.contId)
+                        .img(it.imgH)
+                        .name(it.name)
+                        .url(it.definitionUrl(Prefences.getDefiniitionPrefence()))
+                        .build())
+            }
+
+        }
+    }
+
+    private fun downloadList(list: List<String>) {
+        autoUnSubscribe {
+            setOnBusy(true)
+            Observable.from(list)
+                    .onBackpressureBuffer()
+                    .flatMap {
+                        getVideoObservibe(it)
+                    }
+                    .doOnTerminate { setOnBusy(false) }
+                    .subscribe(object : OneSubScriber<VideoInfoModel>() {
+                        override fun onNext(t: VideoInfoModel) {
+                            super.onNext(t)
+                            showMsg("开始下载：${t.name.limit(5)}")
+                            CacheManager.intance().submitNewTask(CacheTask.Builder()
+                                    .contId(t.contId)
+                                    .img(t.imgH)
+                                    .name(t.name)
+                                    .url(t.definitionUrl(Prefences.getDefiniitionPrefence()))
+                                    .build())
                         }
                     })
         }
     }
 
-    private fun getVideoInfo(contId: String) {
-        val s = ApiFactory.INSTANCE()
+    private fun getVideoObservibe(contId: String): Observable<VideoInfoModel> {
+        return ApiFactory.INSTANCE()
                 .createApi(WapMiGuInter::class.java)
 //                        ApiFactory.createCookie("www.miguvideo.com", "UserInfo", "982324173|772E524A40FA31D9F78D"))
                 .getVideoInfo(contId)
@@ -145,9 +193,17 @@ class VideoPlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
                     newModel.pilotPlayList.play43 = getRealUrl(it.pilotPlayList.play43, key)
                     newModel.pilotPlayList.play44 = getRealUrl(it.pilotPlayList.play44, key)
                     newModel.pilotPlayList.play45 = getRealUrl(it.pilotPlayList.play45, key)
+                    if(it.Variety.size == 1&& it.Variety[0].contId.isEmpty() ){
+                        newModel.Variety.removeAt(0)
+                    }
                     newModel
                 }
                 .observeOn(AndroidSchedulers.mainThread())
+    }
+
+
+    private fun getVideoInfo(contId: String) {
+        val s = getVideoObservibe(contId)
                 .doOnTerminate { setOnBusy(false) }
                 .subscribe(object : OneSubScriber<VideoInfoModel>() {
                     override fun onNext(t: VideoInfoModel) {
@@ -155,13 +211,13 @@ class VideoPlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
                         infoModel = t
                         //使用内置的分集
                         infoModel?.let {
-                            updateSeason(it.contId,needUpdateSeason)
+                            updateSeason(it.contId, needUpdateSeason)
                         }
                         val url = t.definitionUrl(Prefences.getDefiniitionPrefence()) {
                             infoModel?.definPos = it
                         }
                         Log.d(TAG, url)
-                        activity.startPlay(t.name, url, VideoInfoModel.definitionName(infoModel?.definPos ?: 0),playPosition)
+                        activity.startPlay(t.name, url, VideoInfoModel.definitionName(infoModel?.definPos ?: 0), playPosition)
                         playPosition = 0
                     }
                 })
@@ -205,28 +261,33 @@ class VideoPlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
         saveHistory()
     }
 
-    private fun saveHistory(){
+    private fun saveHistory() {
         //存储播放位置
         infoModel?.let {
             val pos = IjkVideoManager.getInstance().currentPosition
             val all = IjkVideoManager.getInstance().duration
-            val prec = if(all == 0){0}else{ pos * 100 /all}
+            val prec = if (all == 0) {
+                0
+            } else {
+                pos * 100 / all
+            }
             //大于95的 统统去掉
-            if(prec in 1..100) {
-                val info = ViewVideoDao(it.contId, it.name, it.imgH, pos, prec,System.currentTimeMillis())
+            if (prec in 1..100) {
+                val info = ViewVideoDao(it.contId, it.name, it.imgH, pos, prec, System.currentTimeMillis())
                 DataCenter.instance().insert(info)
                 RxBus.instance().postEmptyEvent(BusKey.UPDATE_HISTORY_LIST)
-            }else if(prec == 0 && pos > 0){
-                val info = ViewVideoDao(it.contId, it.name, it.imgH, pos, prec,System.currentTimeMillis())
+            } else if (prec == 0 && pos > 0) {
+                val info = ViewVideoDao(it.contId, it.name, it.imgH, pos, prec, System.currentTimeMillis())
                 DataCenter.instance().insert(info)
                 RxBus.instance().postEmptyEvent(BusKey.UPDATE_HISTORY_LIST)
             }
         }
     }
+
     private fun showWirelessToTvDialog() {
         infoModel?.let { model ->
             activity.pauseVideo()
-            HpplayLinkControl.getInstance().showHpplayWindow(activity,model.definitionUrl(Prefences.getDefiniitionPrefence()) , activity.getNowPosition() / 1000, object : HpplayWindowPlayCallBack {
+            HpplayLinkControl.getInstance().showHpplayWindow(activity, model.definitionUrl(Prefences.getDefiniitionPrefence()), activity.getNowPosition() / 1000, object : HpplayWindowPlayCallBack {
                 override fun onIsConnect(p0: Boolean) {
                     var msg = ""
                     if (p0) {
@@ -281,39 +342,41 @@ class VideoPlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
             if (updateDao) {
                 seasonList?.let { season ->
                     addSeasonList(contId, season.mapIndexed { index, pair ->
-                        Triple(pair.first,pair.second,position) } )
+                        Triple(pair.first, pair.second, position)
+                    })
                 }
                 needUpdateSeason = false
-                RxBus.instance().postSingleEvent(BusKey.UPDATE_COLLECT_LIST,contId)
+                RxBus.instance().postSingleEvent(BusKey.UPDATE_COLLECT_LIST, contId)
             }
-        }else{
-            if(updateDao) {
+        } else {
+            if (updateDao) {
                 val newSeasonList = infoModel?.getSeasonPairs()
                 newSeasonList.notEmptyRun {
                     if (it is List) {
                         if (seasonList!!.size < it.size) {
                             val tripleList = it.mapIndexed { index, pair ->
-                                Triple(pair.first,pair.second,position) }
+                                Triple(pair.first, pair.second, position)
+                            }
                             val subList = tripleList.subList(seasonList!!.size, tripleList.size - 1)
                             addSeasonList(contId, subList)
                         }
                     }
                 }
-                RxBus.instance().postSingleEvent(BusKey.UPDATE_COLLECT_LIST,contId)
+                RxBus.instance().postSingleEvent(BusKey.UPDATE_COLLECT_LIST, contId)
                 needUpdateSeason = false
             }
         }
     }
 
-    private fun addSeasonList(nodeId: String, list: List<Triple<String, String,Int>>) {
+    private fun addSeasonList(nodeId: String, list: List<Triple<String, String, Int>>) {
         CollectManager.manager.collectSeasonList(list, object : IDaoAdapter<Triple<String, String, Int>, SeasonInfoDao> {
-            override fun adapt(t: Triple<String, String,Int>): SeasonInfoDao {
-                return SeasonInfoDao(t.first, t.second, nodeId,t.third)
+            override fun adapt(t: Triple<String, String, Int>): SeasonInfoDao {
+                return SeasonInfoDao(t.first, t.second, nodeId, t.third)
             }
 
-            override fun reAdapt(t: SeasonInfoDao?): Triple<String, String,Int>? {
+            override fun reAdapt(t: SeasonInfoDao?): Triple<String, String, Int>? {
                 if (t != null) {
-                    return Triple(t.contId, t.name,t.position)
+                    return Triple(t.contId, t.name, t.position)
                 }
                 return null
             }

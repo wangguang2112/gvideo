@@ -57,6 +57,25 @@ class VideoPlayActivity : BaseActivity() {
         video_view.setMediaController(controller)
     }
 
+    fun playNative(title: String?, path: String,playPos:Int = 0){
+        controller.setShowMoreOption(false)
+        if(title?.isNotEmpty() == true){
+            controller.setTitle(title)
+        }else{
+            controller.setShowTitle(false)
+        }
+        video_view.setVideoPath(path)
+        if(playPos > 0) {
+            IjkVideoManager.getInstance().seekTo(if (playPos > 5000) {
+                playPos - 5000
+            } else {
+                playPos
+            })
+        }
+        controller.setPreparedPlay(true)
+        video_view.openVideo()
+    }
+
     fun startPlay(title: String, url: String,definition:String,playPos:Int = 0) {
         controller.setTitle(title)
         controller.setDefinition(definition)

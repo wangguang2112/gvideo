@@ -136,19 +136,20 @@ class MoviePlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
     private fun showDownloadDialog() {
         setOnBusy(true, true)
         seasonList?.let {
-            CacheManager.intance().checkIsDownload(it)
+            CacheManager.intance().checkIsDownload(it.map { it.first })
                     .doOnTerminate { setOnBusy(false) }
                     .subscribe(object : OneSubScriber<List<Pair<String, Boolean>>>() {
                         override fun onNext(t: List<Pair<String, Boolean>>) {
                             super.onNext(t)
                             SelectDownloadDialog(activity, t) {
                                 Log.d(TAG, it.toString())
-//                                CacheManager.intance().downloadNew(t)
+//                                CacheManager.intance().submitNewTask()
                             }.show()
                         }
                     })
         }
     }
+
 
 
     private fun getVideoInfo(contId: String, requestRate: Int = Prefences.getDefiniitionRate(), change: Boolean = false) {

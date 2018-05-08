@@ -110,6 +110,7 @@
 
     <!-- 红色文字 -->
     <color name="dark_text">#333333</color>
+    <color name="divider">#e8e8e8</color>
 
     <!-- 灰色背景 -->
     <color name="dialog_background">#cc000000</color>

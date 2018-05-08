@@ -36,7 +36,7 @@
         android:layout_height="wrap_content"
         android:textColor="@color/gray_text"
         android:textSize="@dimen/text_size_13"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="10dp"
         android:maxLines="2"
         android:text="310MB"/>
 
@@ -51,7 +51,7 @@
         android:textSize="12sp"
         android:layout_marginTop="3dp"
         android:maxLines="2"
-        android:text="1:59:32"/>
+        android:text=""/>
 
 
 

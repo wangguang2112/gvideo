@@ -7,7 +7,7 @@
                 android:background="@drawable/search_item_background"
                 android:layout_height="110dp">
     <com.facebook.drawee.view.SimpleDraweeView
-        android:id="@+id/normal_video_item_icon"
+        android:id="@+id/normal_download_item_icon"
         fresco:actualImageScaleType="centerInside"
         fresco:failureImage="@android:drawable/ic_delete"
         fresco:failureImageScaleType="focusCrop"
@@ -15,8 +15,8 @@
         android:layout_height="80dp"/>
 
     <TextView
-        android:id="@+id/normal_video_item_name"
-        android:layout_toRightOf="@id/normal_video_item_icon"
+        android:id="@+id/normal_download_item_name"
+        android:layout_toRightOf="@id/normal_download_item_icon"
         android:layout_marginLeft="15dp"
         android:layout_marginRight="24dp"
         android:layout_width="match_parent"
@@ -27,40 +27,40 @@
         android:maxLines="2"
         android:text="名字"/>
 
-    <TextView
-        android:id="@+id/normal_video_item_display"
-        android:layout_below="@id/normal_video_item_name"
-        android:layout_toRightOf="@id/normal_video_item_icon"
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleHorizontal"
+        android:id="@+id/normal_download_item_progress"
+        android:layout_toRightOf="@id/normal_download_item_icon"
+        android:layout_below="@id/normal_download_item_name"
         android:layout_marginLeft="15dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@color/normal_text"
-        android:textSize="@dimen/text_size_13"
-        android:layout_marginTop="3dp"
+        android:max="100"
+        android:layout_marginTop="15dp"
+
+        />
+    <TextView
+        android:id="@+id/normal_download_item_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/gray_text"
+        android:textSize="12sp"
         android:maxLines="2"
-        android:text="类型"/>
+        android:text="310MB"
+        android:layout_alignBottom="@+id/normal_download_item_icon"
+        android:layout_alignParentEnd="true"/>
 
-    <com.wang.gvideo.common.view.HorizontalListView
-        android:id="@+id/normal_video_item_diversity"
-        android:layout_toRightOf="@id/normal_video_item_icon"
-        android:layout_alignParentBottom="true"
-        android:divider="@color/transparent"
-        fresco:dividerWidth="5dp"
-        android:requiresFadingEdge="horizontal"
-        android:fadingEdgeLength="10dp"
-        android:layout_width="match_parent"
-        android:paddingTop="5dp"
-        android:layout_height="35dp"
-        android:layout_marginLeft="15dp"/>
-
-    <ImageView
-        android:id="@+id/normal_video_item_collect"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:src="@drawable/collect_icon"
-        android:layout_marginTop="2dp"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"/>
+    <TextView
+        android:id="@+id/normal_download_item_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/gray_text"
+        android:textSize="12sp"
+        android:maxLines="2"
+        android:text="暂停中"
+        android:layout_alignBottom="@+id/normal_download_item_icon"
+        android:layout_alignStart="@+id/normal_download_item_progress"/>
 
 
 </RelativeLayout>

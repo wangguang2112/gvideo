@@ -54,6 +54,12 @@ open class BasePresenter<out AC> constructor(protected val activity: AC) : IPres
        }
     }
 
+    fun autoUnSubscribe(s: () -> Subscription) {
+        if (activity is BaseActivity) {
+            activity.addSubscription(s())
+        }
+    }
+
     fun showMsg(msg:String){
         if (activity is BaseActivity) {
             activity.mainHandler.post {

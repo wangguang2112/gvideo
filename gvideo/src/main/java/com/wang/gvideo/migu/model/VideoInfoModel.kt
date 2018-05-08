@@ -19,7 +19,7 @@ data class VideoInfoModel(val name: String,
         //JS 解密函数
                           val func: String,
                           val playList: PlayListModel,
-                          val Variety:List<SeasonItem>,
+                          val Variety:MutableList<SeasonItem>,
                           val pilotPlayList: PilotPlayListModel,
                           var definPos: Int) {
     companion object {

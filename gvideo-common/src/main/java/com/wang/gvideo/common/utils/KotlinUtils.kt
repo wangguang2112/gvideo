@@ -72,7 +72,26 @@ inline infix fun <T : Any> Collection<T>?.emptyRun(block: (Collection<T>?) -> Un
     }
 }
 
-inline  fun <T> allNotNil(vararg elements: T?):Boolean {
+/**
+ * 容器异常处理 （执行）
+ */
+inline fun <K : Any, T : Any> Map<K, T>?.has(k: K, block: (T) -> Unit) {
+    if (this != null && this.isNotEmpty() && this.contains(k)) {
+        block(this[k]!!)
+    }
+}
+/**
+ * 容器异常处理 （执行）
+ */
+inline fun <K : Any, T : Any> Map<K, T>?.has(k: K):T? {
+    if (this != null && this.isNotEmpty() && this.contains(k)) {
+       return this[k]
+    }else{
+        return null
+    }
+}
+
+inline fun <T> allNotNil(vararg elements: T?): Boolean {
     if (elements.isEmpty()) return true else {
         var result = true
         elements.forEach {
@@ -103,6 +122,16 @@ inline infix fun String?.emptyRun(block: (String?) -> Unit) {
     if (this == null || this.isEmpty()) {
         block(this)
     }
+}
+/**
+ * 字符串限制展示数
+ */
+inline fun String?.limit(limit:Int,replace:String = ".."): String {
+    if (this != null && this.length > limit) {
+        return this.substring(0..limit) + replace
+    }
+
+    return this?:""
 }
 
 /******************************************* List 内联函数**********************************************/
@@ -223,7 +252,7 @@ fun <T : Any> Map<String, T>?.string(): String {
 inline infix fun <T : Any> WeakReference<T>?.value(block: (T) -> Unit) {
     if (this != null) {
         var t = this.get()
-        if(t!=null){
+        if (t != null) {
             block(t)
         }
     }
