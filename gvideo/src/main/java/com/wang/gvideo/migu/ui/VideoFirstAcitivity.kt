@@ -44,6 +44,8 @@ import com.wang.gvideo.migu.ui.view.GRefreshHeader
 import kotlinx.android.synthetic.main.activity_video_first.*
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
+import java.io.File
+import java.util.*
 
 
 /**
@@ -295,6 +297,20 @@ class VideoFirstAcitivity : BaseActivity() {
 
 
     private fun showOpenCidDialog() {
+        val file = this.getExternalFilesDir("videoCache").absolutePath + "/637595622/637595622.mp4"
+        val input = File(file)
+        if(input.exists()) {
+            val buffer = ByteArray(1024)
+            input.inputStream().read(buffer)
+            val size = buffer[3]
+            Log.d("wanggaung", "size $size")
+            val scaleStart = size.toInt() + 3 + 4 + 1 + 3 + 4 + 4
+            val scale = Arrays.copyOfRange(buffer, scaleStart, scaleStart + 4)
+            val duration = Arrays.copyOfRange(buffer, scaleStart + 4, scaleStart + 8)
+            Log.d("wanggaung", "scale:$scale,duration$duration")
+        }else{
+            Log.d("wanggaung", "exists")
+        }
         val alertView = AlertView.Builder()
                 .setContext(this@VideoFirstAcitivity)
                 .setStyle(AlertView.Style.Alert)

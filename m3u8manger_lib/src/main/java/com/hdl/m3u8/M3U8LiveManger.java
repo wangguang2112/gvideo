@@ -136,7 +136,7 @@ public class M3U8LiveManger {
         netSpeedTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                onDownloadListener.onProgress(curLenght);
+                onDownloadListener.onProgress(curLenght,curTs);
             }
         }, 0, 1000);
         startUpdateM3U8Info(url);

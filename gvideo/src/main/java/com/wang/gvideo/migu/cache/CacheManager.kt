@@ -1,6 +1,7 @@
 package com.wang.gvideo.migu.cache
 
 import android.os.Environment
+import android.util.Log
 import com.hdl.m3u8.bean.OnDownloadListener
 import com.wang.gvideo.App
 import com.wang.gvideo.common.dao.DataCenter
@@ -27,23 +28,6 @@ class CacheManager {
         }
     }
 
-    init {
-        //从数据库中读取缓存数据
-        DataCenter.instance().queryWithConditionSort(CacheTaskDao::class, CacheTask::class, "state", "", CacheAdapter())
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .subscribe(object : OneSubScriber<List<CacheTask>>() {
-                    override fun onNext(t: List<CacheTask>) {
-                        super.onNext(t)
-                        taskList.putAll(t.map { Pair(it.taskId, it) }.toMap())
-                        taskVideoId.putAll(t.map { Pair(it.contId(), it.taskId) }.toMap())
-                        t.forEach {
-                            taskCallBack[it.taskId] = mutableListOf()
-                        }
-                    }
-                })
-    }
-
     /** 所有提交过的任务数据结构 */
     private val taskList = mutableMapOf<String, ITask>()
     /** 下载回调 */
@@ -52,6 +36,25 @@ class CacheManager {
     private val taskVideoId = mutableMapOf<String, String>()
 
     private val taskQueue = TaskQueue()
+
+    init {
+        //从数据库中读取缓存数据
+        DataCenter.instance().queryWithConditionSort(CacheTaskDao::class, CacheTask::class, "state", "", CacheAdapter())
+                .observeOn(Schedulers.io())
+                .subscribe(object : OneSubScriber<List<CacheTask>>() {
+                    override fun onNext(t: List<CacheTask>) {
+                        super.onNext(t)
+                        taskList.putAll((t.map { Pair(it.taskId, it) }).toMutableList().toMap())
+                        taskVideoId.putAll((t.map { Pair(it.contId(), it.taskId) }).toMutableList().toMap())
+                        t.forEach {
+                            taskCallBack[it.taskId] = mutableListOf()
+                        }
+                        recoverPauseTask()
+                    }
+                })
+    }
+
+
 
     init {
         taskQueue.taskChangeListener = { taskId: String, state: ITask.STATE ->
@@ -66,6 +69,10 @@ class CacheManager {
 
     fun allTask(): List<ITask> {
         return taskList.values.toMutableList().sortedBy { it.state() }
+    }
+
+    private fun recoverPauseTask(){
+        taskQueue.recovery(taskList.values.toList())
     }
 
     fun submitNewTask(task: ITask) {
@@ -140,6 +147,13 @@ class CacheManager {
     fun resume(contId: String) {
         taskVideoId.has(contId) {
             taskQueue.resume(it)
+        }
+    }
+    fun reDownload(contId: String){
+        taskVideoId.has(contId) {
+            taskList[it]?.let {task->
+                taskQueue.submit(task)
+            }
         }
     }
 

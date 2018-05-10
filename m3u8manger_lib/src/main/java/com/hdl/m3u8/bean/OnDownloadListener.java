@@ -25,6 +25,7 @@ public interface OnDownloadListener extends BaseListener {
      * 当前已经下载的文件大小
      *
      * @param curLength
+     * @param curTs
      */
-    void onProgress(long curLength);
+    void onProgress(long curLength,int curTs);
 }

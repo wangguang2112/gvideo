@@ -119,7 +119,12 @@ public class MUtils {
         FileOutputStream fos = new FileOutputStream(saveFile);
         File file;
         for (M3U8Ts ts : mergeList) {
-            file = new File(basePath, ts.getFileName());
+            int index =  ts.getFileName().indexOf("?");
+            String fileName = ts.getFileName();
+            if(index > 0) {
+                fileName = ts.getFileName().substring(0, index);
+            }
+            file = new File(basePath,fileName);
             if (file.isFile() && file.exists()) {
                 IOUtils.copyLarge(new FileInputStream(file), fos);
             }

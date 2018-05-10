@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Color
 import android.net.Uri
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -93,6 +94,7 @@ class DownloadAdapter(val context: Context) : RecyclerView.Adapter<DownloadAdapt
                     current.changeListener = { _, state ->
                         this.text = getStateName(state)
                         text = getStateName(state)
+                        setTextColor(getStateColor(state))
                     }
                 }
                 holder.progress.apply {
@@ -105,9 +107,10 @@ class DownloadAdapter(val context: Context) : RecyclerView.Adapter<DownloadAdapt
                 holder.parent.tag = current
                 holder.parent.setOnClickListener {
                     when (current.state) {
-                        ITask.STATE.STATE_ERROR -> CacheManager.intance().resume(current.contId())
+                        ITask.STATE.STATE_ERROR -> CacheManager.intance().reDownload(current.contId())
                         ITask.STATE.STATE_RUNNING -> CacheManager.intance().pause(current.contId())
                         ITask.STATE.STATE_PAUSE -> CacheManager.intance().resume(current.contId())
+                        ITask.STATE.STATE_WAITING -> CacheManager.intance().pause(current.contId())
                     }
                 }
                 holder.parent.setOnLongClickListener {

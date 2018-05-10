@@ -100,37 +100,36 @@ class VideoListAdapter @Inject constructor(private val context: Context) : Recyc
             if (adapter == null) {
                 adapter = SeasonAdapter(context)
                 holder.diversityView?.adapter = adapter
-
-                if (adapter is SeasonAdapter) {
-                    if(listData[position].subList.empty()){
-                        holder.diversityView?.visibility = View.GONE
-                    }else{
-                        holder.diversityView?.visibility = View.VISIBLE
-                        adapter.seasonData = listData[position].subList.nil { listOf() }
-                        adapter.notifyDataSetChanged()
-                    }
-                }
-                holder.diversityView?.setOnItemClickListener { _, view, childPos, _ ->
-                    mListener?.onItemClick(view, position, childPos, listData[position], listData[position].subList[childPos])
-                    itemListener?.let {
-                        it(view, position, childPos, listData[position], listData[position].subList[childPos])
-                    }
-                }
-                holder.parent.tag = position
-                holder.parent.setOnClickListener { view ->
-                    view.tag?.let {
-                        val pos = it as Int
-                        mListener?.onItemClick(view, pos, 0, listData[pos], null)
-                        itemListener?.let {
-                            it(view, pos, 0, listData[pos], null)
-                        }
-                    }
-                }
-
             }
-        }
+            if (adapter is SeasonAdapter) {
+                if (listData[position].subList.empty()) {
+                    holder.diversityView?.visibility = View.GONE
+                } else {
+                    holder.diversityView?.visibility = View.VISIBLE
+                    adapter.seasonData = listData[position].subList.nil { listOf() }
+                    adapter.notifyDataSetChanged()
+                }
+            }
+            holder.diversityView?.setOnItemClickListener { _, view, childPos, _ ->
+                mListener?.onItemClick(view, position, childPos, listData[position], listData[position].subList[childPos])
+                itemListener?.let {
+                    it(view, position, childPos, listData[position], listData[position].subList[childPos])
+                }
+            }
+            holder.parent.tag = position
+            holder.parent.setOnClickListener { view ->
+                view.tag?.let {
+                    val pos = it as Int
+                    mListener?.onItemClick(view, pos, 0, listData[pos], null)
+                    itemListener?.let {
+                        it(view, pos, 0, listData[pos], null)
+                    }
+                }
+            }
 
+        }
     }
+
 
     private fun handGoodListHolder(holder: GoodListHolder, position: Int) {
         data?.let { listData ->
@@ -188,13 +187,13 @@ class VideoListAdapter @Inject constructor(private val context: Context) : Recyc
             var adapter = holder.diversityView?.adapter
             if (adapter == null) {
                 adapter = SeasonAdapter(context)
+                holder.diversityView?.adapter = adapter
             }
-            holder.diversityView?.adapter = adapter
 
             if (adapter is SeasonAdapter) {
-                if(listData[position].subList.empty()){
+                if (listData[position].subList.empty()) {
                     holder.diversityView?.visibility = View.GONE
-                }else{
+                } else {
                     holder.diversityView?.visibility = View.VISIBLE
                     adapter.seasonData = listData[position].subList.nil { listOf() }
                     adapter.notifyDataSetChanged()
@@ -216,9 +215,9 @@ class VideoListAdapter @Inject constructor(private val context: Context) : Recyc
                     }
                 }
             }
-            if(currentItem.isVip == 1){
+            if (currentItem.isVip == 1) {
                 holder.vipView?.visibility = View.VISIBLE
-            }else{
+            } else {
                 holder.vipView?.visibility = View.GONE
             }
         }

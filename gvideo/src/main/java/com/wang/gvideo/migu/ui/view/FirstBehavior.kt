@@ -3,9 +3,13 @@ package com.wang.gvideo.migu.ui.view
 import android.content.Context
 import android.support.design.widget.CoordinatorLayout
 import android.support.v4.view.ViewCompat
+import android.support.v7.widget.RecyclerView
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
+import android.widget.ListView
+import android.widget.OverScroller
+import android.widget.ScrollView
 import android.widget.Scroller
 import com.wang.gvideo.R
 import com.wang.gvideo.common.utils.getValue
@@ -21,11 +25,9 @@ import java.lang.ref.WeakReference
  */
 class FirstBehavior(val context: Context, attrs: AttributeSet?) : CoordinatorLayout.Behavior<View>(context, attrs) {
 
-    private val DEBUG = false
+    private val DEBUG = true
 
-
-
-    private var scroller = Scroller(context)
+    private var scroller = OverScroller(context)
     private var dependentView: WeakReference<View>? = null
     private var isScrolling = false
 
@@ -35,7 +37,8 @@ class FirstBehavior(val context: Context, attrs: AttributeSet?) : CoordinatorLay
      */
 
     override fun onStartNestedScroll(coordinatorLayout: CoordinatorLayout, child: View, directTargetChild: View, target: View, nestedScrollAxes: Int): Boolean {
-        return (nestedScrollAxes and ViewCompat.SCROLL_AXIS_VERTICAL) != 0
+        val isNeedScroll = target.id  != R.id.video_collect_season_list
+        return isNeedScroll && (nestedScrollAxes and ViewCompat.SCROLL_AXIS_VERTICAL) != 0
     }
 
     override fun onNestedScrollAccepted(coordinatorLayout: CoordinatorLayout?, child: View?, directTargetChild: View?, target: View?, nestedScrollAxes: Int) {
@@ -156,7 +159,7 @@ class FirstBehavior(val context: Context, attrs: AttributeSet?) : CoordinatorLay
             if (translateY == 0f) {
                 return false
             }
-            scroller.fling(0, translateY.toInt(),0, -velocity.toInt(),0,0,-dependence.height,0)
+            scroller.fling(0, translateY.toInt(),0, -velocity.toInt(),0,0,-dependence.height,0,0,1000)
             ViewCompat.postOnAnimation(dependence,flingRunnable)
             isScrolling = true
         }
@@ -167,8 +170,15 @@ class FirstBehavior(val context: Context, attrs: AttributeSet?) : CoordinatorLay
         override fun run() {
             dependentView.value { dependence ->
                 if (scroller.computeScrollOffset()) {
-                    dependence.translationY = scroller.currY.toFloat()
-                    ViewCompat.postOnAnimation(dependence,this)
+                    val newTran = scroller.currY.toFloat()
+                    if(newTran >=-dependence.height && dependence.translationY <=0 ) {
+                        dependence.translationY = newTran
+                        ViewCompat.postOnAnimation(dependence, this)
+                    }else if(newTran <-dependence.height){
+                        dependence.translationY = -dependence.height.toFloat()
+                    }else{
+                        dependence.translationY = 0f
+                    }
                 } else {
                     isScrolling = false
                 }

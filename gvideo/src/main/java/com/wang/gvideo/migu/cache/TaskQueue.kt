@@ -28,9 +28,7 @@ class TaskQueue {
     fun submit(task: ITask) {
         waitTask.add(task)
         taskChangeListener?.invoke(task.taskId(), ITask.STATE.STATE_WAITING)
-        if (queueState == STATE_IDLE) {
-            resumeQueue()
-        }
+        resumeQueue()
     }
 
     private fun resumeQueue() {
@@ -56,6 +54,11 @@ class TaskQueue {
         val task = if (waitTask.isNotEmpty()) {
             waitTask.poll()
         } else return
+        createAndRun(task)
+        runTask(size - 1)
+    }
+
+    private fun createAndRun(task:ITask){
         val realTask = M3U8DownloadTask(task.taskId())
         realTask.saveFilePath = task.path()
         realTask.isClearTempDir = true
@@ -74,12 +77,13 @@ class TaskQueue {
                 Log.d("wangguang","itemFileSize:$itemFileSize,totalTs:$totalTs")
                 handler.post {
                     task.size(totalTs.toLong())
-                    task.percent(curTs.toLong())
                 }
             }
 
-            override fun onProgress(curLength: Long) {
-//                task.percent(curLength)
+            override fun onProgress(curLength: Long,curTs:Int) {
+                 handler.post {
+                     task.percent(curTs.toLong())
+                 }
             }
 
             override fun onError(errorMsg: Throwable?) {
@@ -93,7 +97,6 @@ class TaskQueue {
             }
 
         })
-        runTask(size - 1)
     }
 
     fun pause(taskId: String) {
@@ -105,25 +108,44 @@ class TaskQueue {
             runningTask.remove(taskId)
             taskChangeListener?.invoke(taskId, ITask.STATE.STATE_PAUSE)
             resumeQueue()
+        }else if(task == null){
+            val waitT = waitTask.find { it.taskId() == taskId }
+            if(waitT != null){
+                waitTask.remove(waitT)
+                pauseTask.add(waitT)
+                taskChangeListener?.invoke(taskId, ITask.STATE.STATE_PAUSE)
+            }
+
         }
     }
 
     fun pauseAll() {
-        if(runningTask.isNotEmpty()){
-            runningTask.forEach { it ->
-                it.value.second.stop()
-                pauseTask.add(it.value.first)
-                runningTask.remove(it.key)
-                taskChangeListener?.invoke(it.key, ITask.STATE.STATE_PAUSE)
-            }
-            waitTask.forEach { it ->
-                pauseTask.add(it)
-                waitTask.remove(it)
-                taskChangeListener?.invoke(it.taskId(), ITask.STATE.STATE_PAUSE)
-            }
+        runningTask.forEach { it ->
+            it.value.second.stop()
+            pauseTask.add(it.value.first)
+            runningTask.remove(it.key)
+            taskChangeListener?.invoke(it.key, ITask.STATE.STATE_PAUSE)
+        }
+        waitTask.forEach { it ->
+            pauseTask.add(it)
+            waitTask.remove(it)
+            taskChangeListener?.invoke(it.taskId(), ITask.STATE.STATE_PAUSE)
         }
     }
 
+    fun recovery(task:List<ITask>){
+        task.forEach {
+            if(it.state() == ITask.STATE.STATE_PAUSE){
+                pauseTask.add(it)
+            }else if(it.state() == ITask.STATE.STATE_WAITING){
+                waitTask.add(it)
+            }else if(it.state() == ITask.STATE.STATE_RUNNING){
+                waitTask.add(it)
+                taskChangeListener?.invoke(it.taskId(), ITask.STATE.STATE_WAITING)
+                resumeQueue()
+            }
+        }
+    }
     fun resume(taskId:String){
         val task = pauseTask.find { it.taskId() == taskId }
         if(task != null){

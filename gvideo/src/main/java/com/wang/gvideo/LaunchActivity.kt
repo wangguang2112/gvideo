@@ -9,6 +9,7 @@ import android.view.KeyEvent
 import android.view.WindowManager
 import com.wang.gvideo.common.base.BaseActivity
 import com.wang.gvideo.common.utils.SharedPreferencesUtil
+import com.wang.gvideo.migu.cache.CacheManager
 import com.wang.gvideo.migu.constant.SpKey
 import com.wang.gvideo.migu.ui.VideoFirstAcitivity
 import kotlinx.android.synthetic.main.activity_launch.*
@@ -20,6 +21,11 @@ class LaunchActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_launch)
         showAnim()
+        initConfig()
+    }
+
+    private fun initConfig() {
+        CacheManager.intance()
     }
 
     fun showAnim() {

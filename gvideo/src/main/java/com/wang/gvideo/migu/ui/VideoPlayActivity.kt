@@ -32,6 +32,7 @@ class VideoPlayActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         DaggerVideoComponent.builder().setContext(this).build().inject(this)
         setPresenter(presenter)
         super.onCreate(savedInstanceState)

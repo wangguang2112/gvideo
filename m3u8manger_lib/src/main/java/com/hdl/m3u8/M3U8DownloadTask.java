@@ -265,7 +265,7 @@ public class M3U8DownloadTask {
         netSpeedTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                onDownloadListener.onProgress(curLenght);
+                onDownloadListener.onProgress(curLenght,curTs);
             }
         }, 0, 1000);
         for (final M3U8Ts m3U8Ts : m3U8.getTsList()) {//循环下载
