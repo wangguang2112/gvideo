@@ -20,6 +20,7 @@ class LaunchActivity : BaseActivity() {
         setWindowStatusBarColor(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_launch)
+        SpKey.MIGU_VIDEO_LAUNCH_ANIM_POS
         showAnim()
         initConfig()
     }
@@ -45,6 +46,7 @@ class LaunchActivity : BaseActivity() {
     var hasStart = false
     private fun startLaunch() {
         if(!hasStart) {
+            animation_view.pauseAnimation()
             val intent = Intent(this, VideoFirstAcitivity::class.java)
             intent.flags += Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
