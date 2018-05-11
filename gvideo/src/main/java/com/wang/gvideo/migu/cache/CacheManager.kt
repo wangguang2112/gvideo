@@ -22,6 +22,7 @@ import java.io.File
  */
 class CacheManager {
     companion object {
+        const val TAG = "CacheManager"
         private val manager = CacheManager()
         fun intance(): CacheManager {
             return manager
@@ -58,6 +59,7 @@ class CacheManager {
 
     init {
         taskQueue.taskChangeListener = { taskId: String, state: ITask.STATE ->
+            Log.d(TAG,"taskId = $taskId state = ${getStateName(state)}")
             val t = taskList[taskId]
             if (t is CacheTask) {
                 t.state = state
@@ -186,5 +188,16 @@ class CacheManager {
             false
         }
 
+    }
+
+    fun getStateName(state: ITask.STATE): String {
+        return when (state) {
+            ITask.STATE.STATE_PARPERA -> "STATE_PARPERA"
+            ITask.STATE.STATE_PAUSE -> "STATE_PAUSE"
+            ITask.STATE.STATE_WAITING -> "STATE_WAITING"
+            ITask.STATE.STATE_RUNNING -> "STATE_RUNNING"
+            ITask.STATE.STATE_COMPLETE -> "STATE_COMPLETE"
+            ITask.STATE.STATE_ERROR -> "STATE_ERROR"
+        }
     }
 }

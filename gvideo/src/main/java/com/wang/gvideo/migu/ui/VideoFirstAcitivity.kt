@@ -281,6 +281,11 @@ class VideoFirstAcitivity : BaseActivity() {
             }
             val ic2 = optionWindow!!.contentView.findViewById<LinearLayout>(R.id.options_list_2)
             ic2.setOnClickListener {
+                showOpenUrlDialog()
+                optionWindow?.dismiss()
+            }
+            val ic3 = optionWindow!!.contentView.findViewById<LinearLayout>(R.id.options_list_3)
+            ic3.setOnClickListener {
                 optionWindow?.dismiss()
                 startActivity(Intent(this@VideoFirstAcitivity, DownloadActivity::class.java))
             }
@@ -297,7 +302,7 @@ class VideoFirstAcitivity : BaseActivity() {
 
 
     private fun showOpenCidDialog() {
-        val file = this.getExternalFilesDir("videoCache").absolutePath + "/637595622/637595622.mp4"
+     /*   val file = this.getExternalFilesDir("videoCache").absolutePath + "/637595622/637595622.mp4"
         val input = File(file)
         if(input.exists()) {
             val buffer = ByteArray(1024)
@@ -310,7 +315,7 @@ class VideoFirstAcitivity : BaseActivity() {
             Log.d("wanggaung", "scale:$scale,duration$duration")
         }else{
             Log.d("wanggaung", "exists")
-        }
+        }*/
         val alertView = AlertView.Builder()
                 .setContext(this@VideoFirstAcitivity)
                 .setStyle(AlertView.Style.Alert)
@@ -323,6 +328,36 @@ class VideoFirstAcitivity : BaseActivity() {
                         Alerter.create(this@VideoFirstAcitivity)
                                 .setTitle("提示")
                                 .setText("请输入正确的cid")
+                                .setBackgroundColorRes(R.color.toast_background)
+                                .setDuration(1000)
+                                .show()
+                    }
+                }
+                .build()
+        alertView.show()
+        firstView.isClickable = false
+        secondView.isClickable = false
+        alertView.setOnDismissListener {
+            firstView.isClickable = true
+            secondView.isClickable = true
+        }
+    }
+
+    private fun showOpenUrlDialog() {
+        val alertView = AlertView.Builder()
+                .setContext(this@VideoFirstAcitivity)
+                .setStyle(AlertView.Style.Alert)
+                .setTitle("添加视频地址")
+                .setMessage(null)
+                .setCancelText("取消")
+                .setDestructive("播放")
+                .setWithEditor("请输入url") { text ->
+                    if (text.toString().isNotEmpty()) {
+                        VideoPlayHelper.startNativeVideo(this@VideoFirstAcitivity, text.toString())
+                    } else {
+                        Alerter.create(this@VideoFirstAcitivity)
+                                .setTitle("提示")
+                                .setText("请输入正确的url")
                                 .setBackgroundColorRes(R.color.toast_background)
                                 .setDuration(1000)
                                 .show()
@@ -390,7 +425,7 @@ class VideoFirstAcitivity : BaseActivity() {
     }
 
     private fun getRecommondCache() {
-        DataCenter.instance().queryList(RecommondDao::class, MovieItem::class, MovieItem.adapter)
+        DataCenter.instance().queryWithConditionSort(RecommondDao::class, MovieItem::class,"time","", MovieItem.adapter)
                 .subscribe(object : OneSubScriber<List<MovieItem>>() {
                     override fun onNext(t: List<MovieItem>) {
                         super.onNext(t)
