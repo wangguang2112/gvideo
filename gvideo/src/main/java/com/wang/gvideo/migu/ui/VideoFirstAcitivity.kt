@@ -13,7 +13,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.PopupWindow
 import android.widget.Toast
-import com.code19.library.SPUtils
 import com.github.jdsjlzx.interfaces.OnLoadMoreListener
 import com.github.jdsjlzx.interfaces.OnRefreshListener
 import com.github.jdsjlzx.recyclerview.LRecyclerViewAdapter
@@ -35,7 +34,6 @@ import com.wang.gvideo.migu.cache.CacheManager
 import com.wang.gvideo.migu.constant.BusKey
 import com.wang.gvideo.migu.constant.SpKey
 import com.wang.gvideo.migu.dao.CollectManager
-import com.wang.gvideo.migu.dao.model.CacheTaskDao
 import com.wang.gvideo.migu.dao.model.RecommondDao
 import com.wang.gvideo.migu.dao.model.ViewVideoDao
 import com.wang.gvideo.migu.model.MovieItem
@@ -44,11 +42,10 @@ import com.wang.gvideo.migu.ui.adapter.CollectAdapter
 import com.wang.gvideo.migu.ui.adapter.HistoryAdapter
 import com.wang.gvideo.migu.ui.adapter.RecommondAdapter
 import com.wang.gvideo.migu.ui.view.GRefreshHeader
+import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_video_first.*
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
-import java.io.File
-import java.util.*
 
 
 /**
@@ -323,8 +320,6 @@ class VideoFirstAcitivity : BaseActivity() {
                 .setContext(this@VideoFirstAcitivity)
                 .setStyle(AlertView.Style.Alert)
                 .setTitle("添加视频cid")
-
-
                 .setMessage(null)
                 .setCancelText("取消")
                 .setDestructive("播放")
@@ -500,6 +495,7 @@ class VideoFirstAcitivity : BaseActivity() {
                 recommondAdapter?.recommondList?.addAll(data)
                 recommondAdapter?.notifyDataSetChanged()
                 if (updateDao) {
+                    Realm.getDefaultInstance().delete(RecommondDao::class.java)
                     DataCenter.instance().insertList(RecommondDao::class, data, MovieItem.adapter)
                 }
             } else {
