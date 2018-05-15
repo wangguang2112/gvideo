@@ -75,6 +75,9 @@ class VideoPlayActivity : BaseActivity() {
         }
         controller.setPreparedPlay(true)
         video_view.openVideo()
+        if(isBackground){
+            IjkVideoManager.getInstance().pause()
+        }
     }
 
     fun startPlay(title: String, url: String,definition:String,playPos:Int = 0) {
@@ -108,6 +111,10 @@ class VideoPlayActivity : BaseActivity() {
                     playPos
                 })
             }
+        }
+        //后台以后 不再播放
+        if(isBackground){
+            IjkVideoManager.getInstance().pause()
         }
     }
 
@@ -165,8 +172,15 @@ class VideoPlayActivity : BaseActivity() {
         IjkVideoManager.getInstance().pause()
     }
 
+    var isBackground = false
     override fun onStop() {
         super.onStop()
+        isBackground = true
         IjkVideoManager.getInstance().pause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        isBackground = false
     }
 }

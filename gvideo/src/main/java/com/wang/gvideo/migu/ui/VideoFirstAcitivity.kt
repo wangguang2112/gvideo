@@ -13,6 +13,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.PopupWindow
 import android.widget.Toast
+import com.code19.library.SPUtils
 import com.github.jdsjlzx.interfaces.OnLoadMoreListener
 import com.github.jdsjlzx.interfaces.OnRefreshListener
 import com.github.jdsjlzx.recyclerview.LRecyclerViewAdapter
@@ -25,12 +26,14 @@ import com.wang.gvideo.common.dao.DataCenter
 import com.wang.gvideo.common.net.ApiFactory
 import com.wang.gvideo.common.net.OneSubScriber
 import com.wang.gvideo.common.utils.DensityUtil
+import com.wang.gvideo.common.utils.SharedPreferencesUtil
 import com.wang.gvideo.common.utils.empty
 import com.wang.gvideo.common.utils.nil
 import com.wang.gvideo.common.view.alert.AlertView
 import com.wang.gvideo.migu.api.MiGuMovieInter
 import com.wang.gvideo.migu.cache.CacheManager
 import com.wang.gvideo.migu.constant.BusKey
+import com.wang.gvideo.migu.constant.SpKey
 import com.wang.gvideo.migu.dao.CollectManager
 import com.wang.gvideo.migu.dao.model.CacheTaskDao
 import com.wang.gvideo.migu.dao.model.RecommondDao
@@ -320,10 +323,12 @@ class VideoFirstAcitivity : BaseActivity() {
                 .setContext(this@VideoFirstAcitivity)
                 .setStyle(AlertView.Style.Alert)
                 .setTitle("添加视频cid")
+
+
                 .setMessage(null)
                 .setCancelText("取消")
                 .setDestructive("播放")
-                .setWithEditor("请输入cid") { text ->
+                .setWithEditor("","请输入cid") { text ->
                     text.toIntOrNull()?.let { VideoPlayHelper.startSingleVideoPlay(this@VideoFirstAcitivity, it.toString()) }.nil {
                         Alerter.create(this@VideoFirstAcitivity)
                                 .setTitle("提示")
@@ -344,6 +349,7 @@ class VideoFirstAcitivity : BaseActivity() {
     }
 
     private fun showOpenUrlDialog() {
+        var default = SharedPreferencesUtil.instance.getString(SpKey.MIGU_VIDEO_URL_PLAY_HISTORY)
         val alertView = AlertView.Builder()
                 .setContext(this@VideoFirstAcitivity)
                 .setStyle(AlertView.Style.Alert)
@@ -351,8 +357,9 @@ class VideoFirstAcitivity : BaseActivity() {
                 .setMessage(null)
                 .setCancelText("取消")
                 .setDestructive("播放")
-                .setWithEditor("请输入url") { text ->
+                .setWithEditor(default,"请输入url") { text ->
                     if (text.toString().isNotEmpty()) {
+                        SharedPreferencesUtil.instance.setString(SpKey.MIGU_VIDEO_URL_PLAY_HISTORY,text)
                         VideoPlayHelper.startNativeVideo(this@VideoFirstAcitivity, text.toString())
                     } else {
                         Alerter.create(this@VideoFirstAcitivity)

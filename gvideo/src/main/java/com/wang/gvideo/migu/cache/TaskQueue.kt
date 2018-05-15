@@ -123,14 +123,17 @@ class TaskQueue {
         runningTask.forEach { it ->
             it.value.second.stop()
             pauseTask.add(it.value.first)
-            runningTask.remove(it.key)
             taskChangeListener?.invoke(it.key, ITask.STATE.STATE_PAUSE)
         }
         waitTask.forEach { it ->
             pauseTask.add(it)
-            waitTask.remove(it)
             taskChangeListener?.invoke(it.taskId(), ITask.STATE.STATE_PAUSE)
         }
+        pauseTask.forEach {
+            runningTask.remove(it.contId())
+            waitTask.remove(it)
+        }
+
     }
 
     fun recovery(task:List<ITask>){

@@ -6,6 +6,7 @@ import com.wang.gvideo.common.R;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -99,6 +100,8 @@ public class AlertView {
 
     private String editorHint;
 
+    private String defaultText;
+
     private OnClickWithEditorListener onEditorClickListener;
 
     public AlertView(Builder builder) {
@@ -113,6 +116,7 @@ public class AlertView {
         this.withEditor = builder.withEditor;
         if (this.withEditor) {
             editorHint = builder.editorHint;
+            defaultText = builder.defaultText;
             onEditorClickListener = builder.onEditorClickListener;
         }
         initData(title, msg, cancel, destructive, others);
@@ -271,6 +275,9 @@ public class AlertView {
                 }
             }
         });
+        if(!TextUtils.isEmpty(defaultText)){
+            etName.setText(defaultText);
+        }
         addExtView(mEditView);
     }
 
@@ -537,6 +544,8 @@ public class AlertView {
 
         private String editorHint;
 
+        private String defaultText;
+
         private OnClickWithEditorListener onEditorClickListener;
 
         public Builder setContext(Context context) {
@@ -576,9 +585,10 @@ public class AlertView {
             return this;
         }
 
-        public Builder setWithEditor(String hint, OnClickWithEditorListener onEditorClickListener) {
+        public Builder setWithEditor(String defaultText,String hint, OnClickWithEditorListener onEditorClickListener) {
             this.withEditor = true;
             this.editorHint = hint;
+            this.defaultText = defaultText;
             this.onEditorClickListener = onEditorClickListener;
             return this;
         }
