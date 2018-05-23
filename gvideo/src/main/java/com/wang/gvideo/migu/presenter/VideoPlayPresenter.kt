@@ -220,6 +220,11 @@ class VideoPlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
                         activity.startPlay(t.name, url, VideoInfoModel.definitionName(infoModel?.definPos ?: 0), playPosition)
                         playPosition = 0
                     }
+
+                    override fun onError(e: Throwable) {
+                        super.onError(e)
+                        Toast.makeText(activity,"视频信息获取失败",Toast.LENGTH_SHORT).show()
+                    }
                 })
         addSubscription(s)
     }

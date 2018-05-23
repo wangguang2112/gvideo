@@ -15,7 +15,10 @@ import rx.Observable
 @HOST("http://www.miguvideo.com")
 interface WapMiGuInter {
 
-    @GET("/wap/resource/pc/data/detailData.jsp")
+
+//    @GET("/wap/resource/pc/data/detailData.jsp")
+    //接口更换
+    @GET("/wap/resource/pc/data/miguData.jsp")
     fun getVideoInfo(@Query("cid") cid: String): Observable<List<VideoInfoModel>>
 
     /*      getSearchList("", value, "1", "1002601,1002581")

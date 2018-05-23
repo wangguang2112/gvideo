@@ -324,7 +324,7 @@ class VideoFirstAcitivity : BaseActivity() {
                 .setCancelText("取消")
                 .setDestructive("播放")
                 .setWithEditor("","请输入cid") { text ->
-                    text.toIntOrNull()?.let { VideoPlayHelper.startSingleVideoPlay(this@VideoFirstAcitivity, it.toString()) }.nil {
+                    text.toLongOrNull()?.let { VideoPlayHelper.startSingleVideoPlay(this@VideoFirstAcitivity, it.toString()) }.nil {
                         Alerter.create(this@VideoFirstAcitivity)
                                 .setTitle("提示")
                                 .setText("请输入正确的cid")
@@ -487,6 +487,7 @@ class VideoFirstAcitivity : BaseActivity() {
             video_first_recommond_list.adapter = LRecyclerViewAdapter(recommondAdapter)
             video_first_recommond_list.setLoadMoreEnabled(true)
             if (updateDao) {
+                Realm.getDefaultInstance().delete(RecommondDao::class.java)
                 DataCenter.instance().insertList(RecommondDao::class, data, MovieItem.adapter)
             }
         } else {
