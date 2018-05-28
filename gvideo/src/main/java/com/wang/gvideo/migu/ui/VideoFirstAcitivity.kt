@@ -497,7 +497,6 @@ class VideoFirstAcitivity : BaseActivity() {
             video_first_recommond_list.adapter = LRecyclerViewAdapter(recommondAdapter)
             video_first_recommond_list.setLoadMoreEnabled(true)
             if (updateDao) {
-                Realm.getDefaultInstance().delete(RecommondDao::class.java)
                 DataCenter.instance().insertList(RecommondDao::class, data, MovieItem.adapter)
             }
         } else {
@@ -506,7 +505,6 @@ class VideoFirstAcitivity : BaseActivity() {
                 recommondAdapter?.recommondList?.addAll(data)
                 recommondAdapter?.notifyDataSetChanged()
                 if (updateDao) {
-                    Realm.getDefaultInstance().delete(RecommondDao::class.java)
                     DataCenter.instance().insertList(RecommondDao::class, data, MovieItem.adapter)
                 }
             } else {
