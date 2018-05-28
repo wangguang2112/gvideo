@@ -46,6 +46,7 @@ import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_video_first.*
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
+import video.wang.com.rnmodule.ReactRootActivity
 
 
 /**
@@ -289,6 +290,11 @@ class VideoFirstAcitivity : BaseActivity() {
                 optionWindow?.dismiss()
                 startActivity(Intent(this@VideoFirstAcitivity, DownloadActivity::class.java))
             }
+            val ic4 = optionWindow!!.contentView.findViewById<LinearLayout>(R.id.options_list_4)
+            ic4.setOnClickListener {
+                optionWindow?.dismiss()
+                moreOptionsHandle()
+            }
             optionWindow!!.isOutsideTouchable = true
         }
         optionWindow?.let {
@@ -298,6 +304,10 @@ class VideoFirstAcitivity : BaseActivity() {
                 it.showAsDropDown(v,0,DensityUtil.dip2px(this,16f))
             }
         }
+    }
+
+    private fun moreOptionsHandle() {
+        startActivity(Intent(this,ReactRootActivity::class.java))
     }
 
 

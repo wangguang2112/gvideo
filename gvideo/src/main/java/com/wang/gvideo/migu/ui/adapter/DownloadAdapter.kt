@@ -128,7 +128,7 @@ class DownloadAdapter(val context: Context) : RecyclerView.Adapter<DownloadAdapt
             ITask.STATE.STATE_WAITING -> "等待中"
             ITask.STATE.STATE_RUNNING -> "正在下载"
             ITask.STATE.STATE_COMPLETE -> "已完成"
-            ITask.STATE.STATE_ERROR -> "下载错误"
+            ITask.STATE.STATE_ERROR -> { Toast.makeText(context,",检查网络或者读写权限",Toast.LENGTH_SHORT).show();"下载错误"}
         }
     }
 

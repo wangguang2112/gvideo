@@ -42,7 +42,7 @@ class SelectDefinitionDialog(ctx: Context) : BaseDialog(ctx, R.style.Translucent
             get1080().emptyRun {
                 definition5_contianer.visibility = View.GONE
             }
-            updateSelectedState(definPos?:0)
+            updateSelectedState(definPos)
             definition1.setOnClickListener {
                 dismiss()
                 if(definPos != 0){

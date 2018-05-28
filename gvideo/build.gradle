@@ -24,7 +24,8 @@ android {
         abi {
             enable true
             reset()
-            include 'armeabi', "arm64-v8a" //select ABIs to build APKs for
+            include 'armeabi-v7a','x86'//select ABIs to build APKs for
+//            , "arm64-v8a"
             universalApk false //generate an additional APK that contains all the ABIs
         }
     }
@@ -41,6 +42,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation(name: "hpplay-link-2412", ext: "aar")
     implementation project(":player")
+    implementation project(":rnmodule")
     api project(":gvideo-common")
     kapt 'com.jakewharton:butterknife-compiler:8.4.0'
     kapt 'com.google.dagger:dagger-android-processor:2.11'
