@@ -1,6 +1,5 @@
 package com.wang.gvideo.migu.presenter
 
-import android.util.Base64
 import android.util.Log
 import android.view.View
 import android.widget.Toast
@@ -13,35 +12,25 @@ import com.wang.gvideo.common.base.BasePresenter
 import com.wang.gvideo.common.bus.RxBus
 import com.wang.gvideo.common.dao.DataCenter
 import com.wang.gvideo.common.dao.IDaoAdapter
-import com.wang.gvideo.common.net.ApiFactory
 import com.wang.gvideo.common.net.OneSubScriber
-import com.wang.gvideo.common.utils.*
-import com.wang.gvideo.migu.api.WapMiGuInter
+import com.wang.gvideo.common.utils.empty
+import com.wang.gvideo.common.utils.limit
+import com.wang.gvideo.common.utils.notEmptyRun
+import com.wang.gvideo.common.utils.safeGetRun
 import com.wang.gvideo.migu.cache.CacheManager
 import com.wang.gvideo.migu.cache.CacheTask
 import com.wang.gvideo.migu.constant.BusKey
 import com.wang.gvideo.migu.dao.CollectManager
 import com.wang.gvideo.migu.dao.model.SeasonInfoDao
 import com.wang.gvideo.migu.dao.model.ViewVideoDao
-import com.wang.gvideo.migu.model.AppSearchListItem
 import com.wang.gvideo.migu.model.VideoInfoModel
+import com.wang.gvideo.migu.play.*
 import com.wang.gvideo.migu.setting.Prefences
+import com.wang.gvideo.migu.ui.VideoPlayActivity
 import com.wang.gvideo.migu.ui.dialog.SelectDefinitionDialog
 import com.wang.gvideo.migu.ui.dialog.SelectDownloadDialog
 import com.wang.gvideo.migu.ui.dialog.SelectSeasonDialog
-import com.wang.gvideo.migu.ui.VideoPlayActivity
-import com.wang.gvideo.migu.ui.VideoPlayHelper
-import com.wang.gvideo.migu.ui.VideoPlayHelper.VIDEO_CONT_ID
-import com.wang.gvideo.migu.ui.VideoPlayHelper.VIDEO_CONT_ID_POS
-import com.wang.gvideo.migu.ui.VideoPlayHelper.VIDEO_CONT_PLAY_POS
-import com.wang.gvideo.migu.ui.VideoPlayHelper.VIDEO_CONT_SEASON_IDS
 import rx.Observable
-import rx.android.schedulers.AndroidSchedulers
-import rx.schedulers.Schedulers
-import java.net.URLDecoder
-import javax.crypto.Cipher
-import javax.crypto.SecretKeyFactory
-import javax.crypto.spec.DESKeySpec
 import javax.inject.Inject
 
 /**
@@ -70,9 +59,9 @@ class VideoPlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
         }
         playPosition = activity.intent.getIntExtra(VIDEO_CONT_PLAY_POS, 0)
         position = activity.intent.getIntExtra(VIDEO_CONT_ID_POS, 0)
-        needUpdateSeason = activity.intent.getBooleanExtra(VideoPlayHelper.VIDEO_WITH_SEASON_UPDATE, false)
-        nativiePath = activity.intent.getStringExtra(VideoPlayHelper.VIDEO_NATIVE_NAME_PATH)
-        nativieName = activity.intent.getStringExtra(VideoPlayHelper.VIDEO_NATIVE_NAME)
+        needUpdateSeason = activity.intent.getBooleanExtra(VIDEO_WITH_SEASON_UPDATE, false)
+        nativiePath = activity.intent.getStringExtra(VIDEO_NATIVE_NAME_PATH)
+        nativieName = activity.intent.getStringExtra(VIDEO_NATIVE_NAME)
         if(nativiePath?.isNotEmpty() == true){
             activity.mainHandler.post {
                 activity.playNative(nativieName,nativiePath!!)
@@ -153,7 +142,7 @@ class VideoPlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
             Observable.from(list)
                     .onBackpressureBuffer()
                     .flatMap {
-                        getVideoObservibe(it)
+                        CidUrlConverter.getVideoObservibe(it)
                     }
                     .doOnTerminate { setOnBusy(false) }
                     .subscribe(object : OneSubScriber<VideoInfoModel>() {
@@ -171,39 +160,11 @@ class VideoPlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
         }
     }
 
-    private fun getVideoObservibe(contId: String): Observable<VideoInfoModel> {
-        return ApiFactory.INSTANCE()
-                .createApi(WapMiGuInter::class.java)
-//                        ApiFactory.createCookie("www.miguvideo.com", "UserInfo", "982324173|772E524A40FA31D9F78D"))
-                .getVideoInfo(contId)
-                .subscribeOn(Schedulers.io())
-                .map {
-                    it[0]
-                }
-                .map {
-                    val newModel = it.copy()
-                    val key = VideoInfoModel.getKey(it.func)
-                    newModel.playList.play1 = getRealUrl(it.playList.play1, key)
-                    newModel.playList.play2 = getRealUrl(it.playList.play2, key)
-                    newModel.playList.play3 = getRealUrl(it.playList.play3, key)
-                    newModel.playList.play4 = getRealUrl(it.playList.play4, key)
-                    newModel.playList.play5 = getRealUrl(it.playList.play5, key)
-                    newModel.pilotPlayList.play41 = getRealUrl(it.pilotPlayList.play41, key)
-                    newModel.pilotPlayList.play42 = getRealUrl(it.pilotPlayList.play42, key)
-                    newModel.pilotPlayList.play43 = getRealUrl(it.pilotPlayList.play43, key)
-                    newModel.pilotPlayList.play44 = getRealUrl(it.pilotPlayList.play44, key)
-                    newModel.pilotPlayList.play45 = getRealUrl(it.pilotPlayList.play45, key)
-                    if(it.Variety.size == 1&& it.Variety[0].contId.isEmpty() ){
-                        newModel.Variety.removeAt(0)
-                    }
-                    newModel
-                }
-                .observeOn(AndroidSchedulers.mainThread())
-    }
+
 
 
     private fun getVideoInfo(contId: String) {
-        val s = getVideoObservibe(contId)
+        val s = CidUrlConverter.getVideoObservibe(contId)
                 .doOnTerminate { setOnBusy(false) }
                 .subscribe(object : OneSubScriber<VideoInfoModel>() {
                     override fun onNext(t: VideoInfoModel) {
@@ -229,22 +190,9 @@ class VideoPlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
         addSubscription(s)
     }
 
-    private fun getRealUrl(content: String, key: String): String {
-        if (content.isNotEmpty()) {
-            return URLDecoder.decode(decrypt(content, key))
-        } else {
-            return ""
-        }
 
-    }
 
-    private fun decrypt(content: String, key: String): String {
-        val cipher = Cipher.getInstance("DES/ECB/PKCS7Padding")
-        val spec = DESKeySpec(key.toByteArray())
-        val keys = SecretKeyFactory.getInstance("DES").generateSecret(spec)
-        cipher.init(Cipher.DECRYPT_MODE, keys)
-        return String(cipher.doFinal(Base64.decode(content, 0)))
-    }
+
 
     override fun notifyPlayState(statue: Int) {
         if (statue == IjkVideoManager.STATE_PLAYBACK_COMPLETED) {

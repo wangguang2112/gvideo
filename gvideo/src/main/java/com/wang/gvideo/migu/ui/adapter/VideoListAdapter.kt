@@ -49,12 +49,10 @@ class VideoListAdapter @Inject constructor(private val context: Context) : Recyc
     }
 
     override fun onBindViewHolder(holder: VideoListHolder?, position: Int) {
-        holder?.let {
-            if (holder is GoodListHolder) {
-                handGoodListHolder(holder, position)
-            } else if (holder is NormalListHolder) {
-                handNormalListHolder(holder, position)
-            }
+        holder?:return
+        when(holder) {
+            is GoodListHolder -> handGoodListHolder(holder, position)
+            is NormalListHolder -> handNormalListHolder(holder, position)
         }
     }
 
@@ -253,11 +251,11 @@ class VideoListAdapter @Inject constructor(private val context: Context) : Recyc
         }
     }
 
-    open class VideoListHolder constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    open class VideoListHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var parent: View = itemView
     }
 
-    class GoodListHolder constructor(itemView: View) : VideoListHolder(itemView) {
+    class GoodListHolder(itemView: View) : VideoListHolder(itemView) {
         var iconView: SimpleDraweeView? = null
         var nameView: TextView? = null
         var actorView: TextView? = null
@@ -270,7 +268,7 @@ class VideoListAdapter @Inject constructor(private val context: Context) : Recyc
     }
 
 
-    class NormalListHolder constructor(itemView: View) : VideoListHolder(itemView) {
+    class NormalListHolder(itemView: View) : VideoListHolder(itemView) {
         var iconView: SimpleDraweeView? = null
         var nameView: TextView? = null
         var typeView: TextView? = null

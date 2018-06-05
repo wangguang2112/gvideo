@@ -102,19 +102,8 @@ open class BaseActivity : AppCompatActivity() {
         presenterHolder?.onStop()
     }
 
-    protected fun showMsg(msg: String) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT)
-        Observable.just(1)
-                .map {
-                    it
-                }
-                .flatMap {
-                    Observable.just(it)
-                }
-                .zipWith(Observable.just(3)) { it1, it2 ->
-                    it1 + it2
-                }
-                .subscribe { }
+    fun showMsg(msg: String) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
     }
 
 

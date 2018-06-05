@@ -38,11 +38,14 @@ import com.wang.gvideo.migu.dao.model.RecommondDao
 import com.wang.gvideo.migu.dao.model.ViewVideoDao
 import com.wang.gvideo.migu.model.MovieItem
 import com.wang.gvideo.migu.model.MovieItemList
+import com.wang.gvideo.migu.play.VideoPlayHelper
+import com.wang.gvideo.migu.setting.MODE_NORMAL
+import com.wang.gvideo.migu.setting.MODE_TV
+import com.wang.gvideo.migu.setting.Prefences
 import com.wang.gvideo.migu.ui.adapter.CollectAdapter
 import com.wang.gvideo.migu.ui.adapter.HistoryAdapter
 import com.wang.gvideo.migu.ui.adapter.RecommondAdapter
 import com.wang.gvideo.migu.ui.view.GRefreshHeader
-import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_video_first.*
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
@@ -291,7 +294,21 @@ class VideoFirstAcitivity : BaseActivity() {
                 startActivity(Intent(this@VideoFirstAcitivity, DownloadActivity::class.java))
             }
             val ic4 = optionWindow!!.contentView.findViewById<LinearLayout>(R.id.options_list_4)
+            ic4.isSelected = Prefences.getVideoMode() == MODE_TV
             ic4.setOnClickListener {
+//                optionWindow?.dismiss()
+                if(Prefences.getVideoMode() == MODE_TV){
+                    showMsg("关闭视频投屏模式")
+                    Prefences.setVideoMode(MODE_NORMAL)
+                    ic4.isSelected = false
+                }else{
+                    showMsg("开启视频投屏模式")
+                    Prefences.setVideoMode(MODE_TV)
+                    ic4.isSelected = true
+                }
+            }
+            val ic5 = optionWindow!!.contentView.findViewById<LinearLayout>(R.id.options_list_5)
+            ic5.setOnClickListener {
                 optionWindow?.dismiss()
                 moreOptionsHandle()
             }
@@ -312,20 +329,6 @@ class VideoFirstAcitivity : BaseActivity() {
 
 
     private fun showOpenCidDialog() {
-     /*   val file = this.getExternalFilesDir("videoCache").absolutePath + "/637595622/637595622.mp4"
-        val input = File(file)
-        if(input.exists()) {
-            val buffer = ByteArray(1024)
-            input.inputStream().read(buffer)
-            val size = buffer[3]
-            Log.d("wanggaung", "size $size")
-            val scaleStart = size.toInt() + 3 + 4 + 1 + 3 + 4 + 4
-            val scale = Arrays.copyOfRange(buffer, scaleStart, scaleStart + 4)
-            val duration = Arrays.copyOfRange(buffer, scaleStart + 4, scaleStart + 8)
-            Log.d("wanggaung", "scale:$scale,duration$duration")
-        }else{
-            Log.d("wanggaung", "exists")
-        }*/
         val alertView = AlertView.Builder()
                 .setContext(this@VideoFirstAcitivity)
                 .setStyle(AlertView.Style.Alert)

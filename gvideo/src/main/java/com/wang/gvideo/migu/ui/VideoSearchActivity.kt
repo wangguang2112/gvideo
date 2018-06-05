@@ -15,22 +15,20 @@ import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
-import com.tapadoo.alerter.Alerter
 import com.wang.gvideo.R
 import com.wang.gvideo.common.base.BaseActivity
 import com.wang.gvideo.common.net.ApiFactory
 import com.wang.gvideo.common.net.OneSubScriber
 import com.wang.gvideo.common.utils.*
 import com.wang.gvideo.common.view.RecyclerViewDivider
-import com.wang.gvideo.common.view.alert.AlertView
 import com.wang.gvideo.migu.api.MiGuCmInter
 import com.wang.gvideo.migu.api.MiGuMovieInter
 import com.wang.gvideo.migu.component.DaggerVideoSearchComponent
 import com.wang.gvideo.migu.constant.Config
 import com.wang.gvideo.migu.dao.CollectManager
 import com.wang.gvideo.migu.model.*
+import com.wang.gvideo.migu.play.VideoPlayHelper
 import com.wang.gvideo.migu.ui.adapter.RecommondAdapter
-import com.wang.gvideo.migu.ui.adapter.SingleAdapter
 import com.wang.gvideo.migu.ui.adapter.VideoListAdapter
 import kotlinx.android.synthetic.main.activity_video_search.*
 import rx.android.schedulers.AndroidSchedulers
@@ -110,6 +108,7 @@ class VideoSearchActivity : BaseActivity() {
                 video_search_movie_list.visibility = View.VISIBLE
                 this.title = "电影列表"
                 resultList.visibility = View.GONE
+                recommondList.visibility = View.GONE
                 if(needRefresh){
                    val adapter = video_search_movie_list.adapter as RecommondAdapter
 //                    adapter.recommondList.clear()

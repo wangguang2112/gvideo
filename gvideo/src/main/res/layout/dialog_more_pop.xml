@@ -92,6 +92,31 @@
             android:layout_gravity="center_vertical"
             android:layout_width="20dp"
             android:layout_height="20dp"
+            android:src="@drawable/tv_mode"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/normal_text"
+            android:layout_marginLeft="15dp"
+            android:textSize="13sp"
+            android:ellipsize="marquee"
+            android:layout_gravity="center_vertical"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:singleLine="true"
+            android:text="投屏模式"/>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/options_list_5"
+        android:orientation="horizontal"
+        android:layout_width="130dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:background="@color/white"
+        android:layout_height="45dp">
+        <ImageView
+            android:layout_gravity="center_vertical"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:src="@drawable/more"/>
         <TextView
             android:layout_width="wrap_content"

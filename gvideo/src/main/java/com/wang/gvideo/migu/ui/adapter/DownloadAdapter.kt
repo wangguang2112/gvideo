@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Color
 import android.net.Uri
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +16,7 @@ import com.wang.gvideo.common.view.alert.AlertView
 import com.wang.gvideo.migu.cache.CacheManager
 import com.wang.gvideo.migu.cache.CacheTask
 import com.wang.gvideo.migu.cache.ITask
-import com.wang.gvideo.migu.ui.VideoPlayHelper
+import com.wang.gvideo.migu.play.VideoPlayHelper
 
 /**
  * Date:2018/5/4

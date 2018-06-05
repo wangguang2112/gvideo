@@ -27,11 +27,7 @@ import com.wang.gvideo.migu.dao.model.ViewVideoDao
 import com.wang.gvideo.migu.model.MovieInfoModel
 import com.wang.gvideo.migu.setting.Prefences
 import com.wang.gvideo.migu.ui.VideoPlayActivity
-import com.wang.gvideo.migu.ui.VideoPlayHelper.VIDEO_CONT_ID
-import com.wang.gvideo.migu.ui.VideoPlayHelper.VIDEO_CONT_ID_POS
-import com.wang.gvideo.migu.ui.VideoPlayHelper.VIDEO_CONT_PLAY_POS
-import com.wang.gvideo.migu.ui.VideoPlayHelper.VIDEO_CONT_SEASON_IDS
-import com.wang.gvideo.migu.ui.VideoPlayHelper.VIDEO_WITH_SEASON_UPDATE
+import com.wang.gvideo.migu.play.*
 import com.wang.gvideo.migu.ui.dialog.SelectDownloadDialog
 import com.wang.gvideo.migu.ui.dialog.SelectMovieDefiDialog
 import com.wang.gvideo.migu.ui.dialog.SelectSeasonDialog
