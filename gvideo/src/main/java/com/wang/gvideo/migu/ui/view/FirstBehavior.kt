@@ -121,7 +121,10 @@ class FirstBehavior(val context: Context, attrs: AttributeSet?) : CoordinatorLay
         if(DEBUG) {
             Log.d("FirstBehavior", "onDependentViewChanged ${child.javaClass.simpleName} ${dependency.javaClass.simpleName}  ")
         }
-        child.translationY = dependency.height + dependency.translationY
+        val tanY = dependency.height + dependency.translationY
+        if (tanY >= 0 && tanY <= child.height) {
+            child.translationY =tanY
+        }
         return true
     }
 
@@ -129,7 +132,7 @@ class FirstBehavior(val context: Context, attrs: AttributeSet?) : CoordinatorLay
         if(DEBUG) {
             Log.d("FirstBehavior", "layoutDependsOn ")
         }
-        if (dependency != null && dependency.id === R.id.video_first_header) {
+        if (dependency != null && dependency.id == R.id.video_first_header) {
             dependentView = WeakReference(dependency)
             return true
         }

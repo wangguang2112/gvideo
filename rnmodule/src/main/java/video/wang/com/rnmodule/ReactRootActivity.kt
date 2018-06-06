@@ -58,6 +58,7 @@ class ReactRootActivity :BaseActivity(), DefaultHardwareBackBtnHandler {
         mReactInstanceManager?.onBackPressed().nil {
             super.onBackPressed()
         }
+        super.onBackPressed()
     }
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
