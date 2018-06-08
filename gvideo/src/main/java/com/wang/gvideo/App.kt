@@ -7,6 +7,7 @@ import android.content.Context
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.hpplay.link.HpplayLinkControl
 import com.wang.gvideo.migu.constant.Config
+import com.wang.gvideo.migu.dao.realm.Migration0T1
 import io.realm.Realm
 import io.realm.RealmConfiguration
 
@@ -32,8 +33,9 @@ class App : Application() {
         Common.initCommon(this)
         Realm.init(this)
         val config = RealmConfiguration.Builder()
-                .deleteRealmIfMigrationNeeded()
-                .schemaVersion(0)
+//                .deleteRealmIfMigrationNeeded()
+                .schemaVersion(1)
+                .migration(Migration0T1())
                 .build()
         Realm.setDefaultConfiguration(config)
         HpplayLinkControl.getInstance().initHpplayLink(this, Config.LEBO_WIRE_SCREEN_ID)

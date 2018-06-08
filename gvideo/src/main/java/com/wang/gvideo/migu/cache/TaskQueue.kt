@@ -62,6 +62,9 @@ class TaskQueue {
         val realTask = M3U8DownloadTask(task.taskId())
         realTask.saveFilePath = task.path()
         realTask.isClearTempDir = true
+        if(task is CacheTask){
+            task.tempFile = realTask.tempDir
+        }
         realTask.download(task.getUrl(), object : OnDownloadListener {
             override fun onSuccess() {
                 runningTask.remove(task.taskId())
@@ -87,8 +90,14 @@ class TaskQueue {
             }
 
             override fun onError(errorMsg: Throwable?) {
-                errorMsg?.printStackTrace()
                 taskChangeListener?.invoke(task.taskId(), ITask.STATE.STATE_ERROR)
+                errorMsg?:return
+                errorMsg.printStackTrace()
+                var pair = runningTask.remove(task.taskId())
+                pair?:return
+                if(task is CacheTask){
+                    task.errorListener?.invoke(task.taskId,errorMsg)
+                }
             }
 
             override fun onStart() {

@@ -25,8 +25,9 @@ open class CacheTaskDao(@PrimaryKey var contId: String,
                         var percent: Int,
                         var ts: Int,
                         var path: String,
-                        var taskId: String) : RealmObject() {
-    constructor() : this("", "", "", "", "", 0, 0, 0, 0, "", "")
+                        var taskId: String,
+                        var tempFile:String) : RealmObject() {
+    constructor() : this("", "", "", "", "", 0, 0, 0, 0, "", "","")
 
     companion object : IDao<CacheTaskDao> {
         override fun getCollect(): ICollect<CacheTaskDao> {

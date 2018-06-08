@@ -41,7 +41,6 @@ public class M3U8DownloadTask {
         //需要加上当前时间作为文件夹（由于合并时是根据文件夹来合并的，合并之后需要删除所有的ts文件，这里用到了多线程，所以需要按文件夹来存ts）
         tempDir += File.separator + System.currentTimeMillis() / (1000 * 60 * 60 * 24) + "-" + taskId;
     }
-
     //临时下载目录
     private String tempDir = Environment.getExternalStorageDirectory().getPath() + File.separator + "m3u8temp";
     //最终文件保存的路径
@@ -130,6 +129,10 @@ public class M3U8DownloadTask {
         }
     }
 
+    public String getTempDir() {
+        return tempDir;
+    }
+
     public long getReadTimeout() {
         return readTimeout;
     }
@@ -180,6 +183,9 @@ public class M3U8DownloadTask {
                     @Override
                     public void run() {
                         try {
+                            if(m3U8 == null){
+                                throw new IllegalStateException("视频链接失效");
+                            }
                             startDownload(m3U8);
                             if (executor != null) {
                                 executor.shutdown();//下载完成之后要关闭线程池
@@ -216,6 +222,8 @@ public class M3U8DownloadTask {
                             return;
                         } catch (InterruptedException e) {
 //                            e.printStackTrace();
+                            handlerError(e);
+                        } catch (IllegalStateException e){
                             handlerError(e);
                         }
                     }

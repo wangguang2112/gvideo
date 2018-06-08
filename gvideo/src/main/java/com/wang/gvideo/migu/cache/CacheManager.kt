@@ -11,6 +11,7 @@ import com.wang.gvideo.common.utils.has
 import com.wang.gvideo.migu.dao.model.CacheTaskDao
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
+import rx.observables.SyncOnSubscribe
 import rx.schedulers.Schedulers
 import java.io.File
 
@@ -39,6 +40,8 @@ class CacheManager {
 
     private val taskQueue = TaskQueue()
 
+    private val videoMerge = VideoMerge()
+
     init {
         //从数据库中读取缓存数据
         DataCenter.instance().queryWithConditionSort(CacheTaskDao::class, CacheTask::class, "state", "", CacheAdapter())
@@ -57,14 +60,13 @@ class CacheManager {
     }
 
 
-
     init {
         taskQueue.taskChangeListener = { taskId: String, state: ITask.STATE ->
-            Log.d(TAG,"taskId = $taskId state = ${getStateName(state)}")
+            Log.d(TAG, "taskId = $taskId state = ${getStateName(state)}")
             val t = taskList[taskId]
             if (t is CacheTask) {
                 t.state = state
-                //事实更新Task
+                //实时更新Task
                 DataCenter.instance().insert(CacheTaskDao::class, t, CacheAdapter())
             }
         }
@@ -74,7 +76,7 @@ class CacheManager {
         return taskList.values.toMutableList().sortedBy { it.state() }
     }
 
-    private fun recoverPauseTask(){
+    private fun recoverPauseTask() {
         taskQueue.recovery(taskList.values.toList())
     }
 
@@ -152,9 +154,10 @@ class CacheManager {
             taskQueue.resume(it)
         }
     }
-    fun reDownload(contId: String){
+
+    fun reDownload(contId: String) {
         taskVideoId.has(contId) {
-            taskList[it]?.let {task->
+            taskList[it]?.let { task ->
                 taskQueue.submit(task)
             }
         }
@@ -169,6 +172,12 @@ class CacheManager {
             val task = taskList.remove(it)
             task?.let {
                 File(it.path()).deleteOnExit()
+                if (it is CacheTask) {
+                    it.tempFile?.let { temp ->
+                        clearTemp(temp)
+                    }
+
+                }
             }
             taskCallBack.remove(it)
             taskQueue.delete(it)
@@ -201,4 +210,43 @@ class CacheManager {
             ITask.STATE.STATE_ERROR -> "STATE_ERROR"
         }
     }
+
+    fun clearTemp(dir: String) {
+        if (dir.startsWith(Environment.getExternalStorageDirectory().getPath() + File.separator + "m3u8temp")) {
+            var f = File(dir)
+            if (f.exists()) {
+                f.deleteRecursively()
+            }
+        } else {
+            throw IllegalArgumentException("目录不正确")
+        }
+    }
+
+    fun merge(contId:String):Observable<Boolean>{
+        val task = taskList[taskVideoId[contId]]
+        task ?: return Observable.just(false)
+        if (task is CacheTask) {
+            if(task.tempFile?.isNotEmpty() == true){
+                val temp = task.tempFile!!
+                return Observable
+                        .create(SyncOnSubscribe.createStateless<Boolean>({
+                            it.onNext(videoMerge.merge(temp, task.path))
+                            it.onCompleted()
+                        }))
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .doOnNext {
+                            task.state = ITask.STATE.STATE_COMPLETE
+                            val file = File(task.path())
+                            if(file.exists()){
+                                task.size(file.length())
+                            }
+                            DataCenter.instance().insert(CacheTaskDao::class, task, CacheAdapter())
+                        }
+
+            }
+        }
+        return Observable.just(false)
+    }
+
 }

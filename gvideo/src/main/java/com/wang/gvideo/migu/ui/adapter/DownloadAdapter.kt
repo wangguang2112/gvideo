@@ -12,11 +12,14 @@ import android.widget.TextView
 import android.widget.Toast
 import com.facebook.drawee.view.SimpleDraweeView
 import com.wang.gvideo.R
+import com.wang.gvideo.common.base.BaseActivity
+import com.wang.gvideo.common.net.OneSubScriber
 import com.wang.gvideo.common.view.alert.AlertView
 import com.wang.gvideo.migu.cache.CacheManager
 import com.wang.gvideo.migu.cache.CacheTask
 import com.wang.gvideo.migu.cache.ITask
 import com.wang.gvideo.migu.play.VideoPlayHelper
+import java.io.IOException
 
 /**
  * Date:2018/5/4
@@ -94,6 +97,21 @@ class DownloadAdapter(val context: Context) : RecyclerView.Adapter<DownloadAdapt
                         this.text = getStateName(state)
                         text = getStateName(state)
                         setTextColor(getStateColor(state))
+                        if(state == ITask.STATE.STATE_COMPLETE){
+                            this@DownloadAdapter.notifyItemChanged(position)
+                        }
+                    }
+                    current.errorListener ={ _, state ->
+                        when(state){
+                            is IllegalStateException -> {
+                                Toast.makeText(context,state.message,Toast.LENGTH_SHORT).show()
+                                mergeConfirm(current.contId(),position)
+                            }
+                            is IOException -> Toast.makeText(context,"文件问题，请确认权限",Toast.LENGTH_SHORT).show()
+                            else ->{
+                                Toast.makeText(context,state.message,Toast.LENGTH_SHORT).show()
+                            }
+                        }
                     }
                 }
                 holder.progress.apply {
@@ -113,7 +131,11 @@ class DownloadAdapter(val context: Context) : RecyclerView.Adapter<DownloadAdapt
                     }
                 }
                 holder.parent.setOnLongClickListener {
-                    deleteConfirm(current.contId(),position)
+                    if(current.state == ITask.STATE.STATE_ERROR) {
+                        mergeConfirm(current.contId(),position)
+                    }else{
+                        deleteConfirm(current.contId(), position)
+                    }
                     true
                 }
             }
@@ -127,7 +149,7 @@ class DownloadAdapter(val context: Context) : RecyclerView.Adapter<DownloadAdapt
             ITask.STATE.STATE_WAITING -> "等待中"
             ITask.STATE.STATE_RUNNING -> "正在下载"
             ITask.STATE.STATE_COMPLETE -> "已完成"
-            ITask.STATE.STATE_ERROR -> { Toast.makeText(context,",检查网络或者读写权限",Toast.LENGTH_SHORT).show();"下载错误"}
+            ITask.STATE.STATE_ERROR -> "下载错误"
         }
     }
 
@@ -158,7 +180,6 @@ class DownloadAdapter(val context: Context) : RecyclerView.Adapter<DownloadAdapt
         val state = parent.findViewById<TextView>(R.id.normal_download_item_state)
         val size = parent.findViewById<TextView>(R.id.normal_download_item_size)
     }
-
     fun deleteConfirm(conId:String,itemPos: Int){
         val alertView = AlertView.Builder()
                 .setContext(context)
@@ -172,6 +193,39 @@ class DownloadAdapter(val context: Context) : RecyclerView.Adapter<DownloadAdapt
                         CacheManager.intance().delete(conId)
                         taskList.removeAt(itemPos)
                         notifyItemRangeRemoved(itemPos,1)
+                    }else{
+                    }
+                }
+                .build()
+        alertView.show()
+    }
+
+    fun mergeConfirm(conId:String,itemPos: Int){
+        val alertView = AlertView.Builder()
+                .setContext(context)
+                .setStyle(AlertView.Style.ActionSheet)
+                .setTitle("是否合并")
+                .setMessage(null)
+                .setCancelText("取消")
+                .setDestructive("删除","合并")
+                .setOnItemClickListener{ o, position ->
+                    if(position == 0){
+                        CacheManager.intance().delete(conId)
+                        taskList.removeAt(itemPos)
+                        notifyItemRangeRemoved(itemPos,1)
+                    }else if(position == 1){
+                        if(context is BaseActivity){
+                            context.setOnBusy(true)
+                        }
+                        CacheManager.intance().merge(conId)
+                                .doOnTerminate{
+                                    if(context is BaseActivity){
+                                        context.setOnBusy(false)
+                                        Toast.makeText(context,"合并完成",Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                                .subscribe(OneSubScriber<Boolean>())
+
                     }
                 }
                 .build()

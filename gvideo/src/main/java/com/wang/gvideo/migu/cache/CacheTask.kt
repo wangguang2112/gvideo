@@ -27,6 +27,8 @@ class CacheTask(private val url: String,
         percentListener?.invoke(new)
     }
 
+    var errorListener: ((String, Throwable) -> Unit)? = null
+
     var ts = 0;
     var path = ""
 
@@ -36,6 +38,7 @@ class CacheTask(private val url: String,
     var sizeListener: ((size: Long) -> Unit)? = null
     var percentListener: ((percent: Int) -> Unit)? = null
 
+    var tempFile: String? = null
     override fun state(): ITask.STATE {
         return state
     }
@@ -48,12 +51,13 @@ class CacheTask(private val url: String,
 
     override fun percent(progress: Long) {
         ts = progress.toInt()
-        if(size != 0L) {
+        if (size != 0L) {
             val newPrecent = (progress * 100 / size).toInt()
-            if (newPrecent != percent) {
-                percent = newPrecent
-            }
-        }else{
+//            if (newPrecent != percent) {
+//                percent = newPrecent
+//            }
+            percent = newPrecent
+        } else {
             percent = 0
         }
     }
@@ -136,7 +140,7 @@ class CacheTask(private val url: String,
 
         fun build(): ITask {
             if (allNotNil(url, img, name, contId)) {
-                if(nodeId == null){
+                if (nodeId == null) {
                     nodeId = contId
                 }
                 return CacheTask(url!!, img!!, name!!, contId!!, nodeId!!)
