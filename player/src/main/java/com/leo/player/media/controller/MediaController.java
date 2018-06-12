@@ -50,6 +50,7 @@ import com.leo.player.media.videoview.IVideoView;
 import com.leo.player.media.videoview.IjkVideoView;
 import com.leo.player.media.weiget.ENDownloadView;
 import com.leo.player.media.weiget.ENPlayView;
+import com.leo.player.media.weiget.LockLayout;
 
 import java.util.ArrayList;
 import java.util.Formatter;
@@ -134,6 +135,9 @@ public class MediaController extends FrameLayout implements IMediaController, Or
     /** 是否展示更多选项 下载 切换码率 以及更换分集 */
     private boolean mShowMoreOption = false;
 
+    /** 锁定屏幕按钮 */
+    private boolean mShowLockOption = false;
+
     /** 头部添加额外扩展View  */
     private List<View> mMoreViewList = new ArrayList<>();
 
@@ -212,6 +216,8 @@ public class MediaController extends FrameLayout implements IMediaController, Or
     private ImageView seasonView;
 
     private TextView definitionView;
+
+    private ImageView lockView;
 
     //position dialog
     private View mPositionDialogContentView;
@@ -337,6 +343,9 @@ public class MediaController extends FrameLayout implements IMediaController, Or
 
     /** 对外暴露的状态 改变通知*/
     private StateChangeListener mOutStateChangeListener;
+
+    /** 是否锁定中 */
+    private boolean isLock =false;
 
     public MediaController(Context context) {
         this(context, null);
@@ -1046,6 +1055,9 @@ public class MediaController extends FrameLayout implements IMediaController, Or
         if (moreLayout != null && mShowMoreOption){
             moreLayout.setVisibility(VISIBLE);
         }
+        if (lockView != null && mShowLockOption){
+            lockView.setVisibility(VISIBLE);
+        }
 
     }
 
@@ -1066,6 +1078,9 @@ public class MediaController extends FrameLayout implements IMediaController, Or
         }
         if (moreLayout != null && mShowMoreOption){
             moreLayout.setVisibility(GONE);
+        }
+        if (lockView != null && mShowLockOption && !lockView.isSelected()){
+            lockView.setVisibility(GONE);
         }
     }
 
@@ -1196,6 +1211,7 @@ public class MediaController extends FrameLayout implements IMediaController, Or
         moreLayout = (LinearLayout) mediaView.findViewById(R.id.more_change_layout);
         seasonView = (ImageView) mediaView.findViewById(R.id.change_season);
         definitionView = (TextView) mediaView.findViewById(R.id.change_definition);
+        lockView = (ImageView) mediaView.findViewById(R.id.lock);
         downloadView = (ImageView) mediaView.findViewById(R.id.download);
         mLoadingView = (ENDownloadView) mediaView.findViewById(R.id.loading);
         mLoadingView = (ENDownloadView) mediaView.findViewById(R.id.loading);
@@ -1272,6 +1288,7 @@ public class MediaController extends FrameLayout implements IMediaController, Or
                 }
             }
         });
+
         handleControllLayout();
     }
 
@@ -1303,11 +1320,32 @@ public class MediaController extends FrameLayout implements IMediaController, Or
         mHeaderLayout.setVisibility(mShowTitle ? View.VISIBLE : View.GONE);
         mTitleView.setText(mTitle);
         moreLayout.setVisibility(mShowMoreOption?VISIBLE:GONE);
+        lockView.setVisibility(mShowLockOption?VISIBLE:GONE);
         if(mMoreViewList.size() != 0){
             for(View v:mMoreViewList){
                 mHeaderLayout.addView(v);
             }
         }
+        lockView.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(lockView.isSelected()){
+                    lockView.setSelected(false);
+                    show();
+                    if(lockView.getParent() instanceof LockLayout){
+                        ((LockLayout) lockView.getParent()).onLock(false);
+                        isLock = false;
+                    }
+                }else{
+                    lockView.setSelected(true);
+                    hide();
+                    if(lockView.getParent() instanceof LockLayout){
+                        ((LockLayout) lockView.getParent()).onLock(true);
+                        isLock = true;
+                    }
+                }
+            }
+        });
     }
 
     private OnClickListener mFullScreenListener = new OnClickListener() {
@@ -1625,6 +1663,13 @@ public class MediaController extends FrameLayout implements IMediaController, Or
         }
     }
 
+    public void setShowLockOption(boolean showLockOption) {
+        mShowLockOption = showLockOption;
+        if(lockView != null){
+            lockView.setVisibility(mShowLockOption?VISIBLE:GONE);
+        }
+    }
+
     /**
      * 添加头部更多选项，
      * @param view 此View可添加 LinearLayout.LayoutParams
@@ -1642,6 +1687,10 @@ public class MediaController extends FrameLayout implements IMediaController, Or
 
     public void setOnMoreInfoClickListener(OnMoreInfoClickListener onMoreInfoClickListener) {
         mOnMoreInfoClickListener = onMoreInfoClickListener;
+    }
+
+    public boolean isLock() {
+        return isLock;
     }
 
     public interface OnFullScreenChangeListener {

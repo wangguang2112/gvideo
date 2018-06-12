@@ -95,6 +95,5 @@ object CidUrlConverter {
                     cookie
                 }
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
     }
 }

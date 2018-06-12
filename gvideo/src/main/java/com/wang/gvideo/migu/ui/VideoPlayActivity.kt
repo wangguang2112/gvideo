@@ -3,6 +3,7 @@ package com.wang.gvideo.migu.ui
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
+import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
@@ -54,6 +55,7 @@ class VideoPlayActivity : BaseActivity() {
         controller.setShowTitle(true)
         controller.setShowMoreOption(true)
         controller.setDefinition("普清")
+        controller.setShowLockOption(true)
         controller.setOnMoreInfoClickListener(presenter)
         controller.setOutStateChangeListener(presenter)
         controller.setShowBottomProgress(false)
@@ -188,5 +190,13 @@ class VideoPlayActivity : BaseActivity() {
     override fun onResume() {
         super.onResume()
         isBackground = false
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        return if (controller.isLock) {
+            super.onKeyDown(keyCode, event)
+        } else {
+            false
+        }
     }
 }
