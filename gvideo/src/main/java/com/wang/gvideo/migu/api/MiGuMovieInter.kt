@@ -1,7 +1,6 @@
 package com.wang.gvideo.migu.api
 
 import com.wang.gvideo.common.net.HOST
-import com.wang.gvideo.migu.model.AppVideoListInfo
 import retrofit2.http.*
 import rx.Observable
 

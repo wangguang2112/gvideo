@@ -1,6 +1,7 @@
 package com.wang.gvideo.common.utils
 
 import com.google.gson.Gson
+import org.json.JSONArray
 import org.json.JSONObject
 import java.lang.ref.WeakReference
 
@@ -80,13 +81,14 @@ inline fun <K : Any, T : Any> Map<K, T>?.has(k: K, block: (T) -> Unit) {
         block(this[k]!!)
     }
 }
+
 /**
  * 容器异常处理 （执行）
  */
-inline fun <K : Any, T : Any> Map<K, T>?.has(k: K):T? {
+inline fun <K : Any, T : Any> Map<K, T>?.has(k: K): T? {
     if (this != null && this.isNotEmpty() && this.contains(k)) {
-       return this[k]
-    }else{
+        return this[k]
+    } else {
         return null
     }
 }
@@ -123,15 +125,16 @@ inline infix fun String?.emptyRun(block: (String?) -> Unit) {
         block(this)
     }
 }
+
 /**
  * 字符串限制展示数
  */
-inline fun String?.limit(limit:Int,replace:String = ".."): String {
+inline fun String?.limit(limit: Int, replace: String = ".."): String {
     if (this != null && this.length > limit) {
         return this.substring(0..limit) + replace
     }
 
-    return this?:""
+    return this ?: ""
 }
 
 /******************************************* List 内联函数**********************************************/
@@ -258,7 +261,7 @@ inline infix fun <T : Any> WeakReference<T>?.value(block: (T) -> Unit) {
     }
 }
 
-inline fun <T : Any> WeakReference<T>?.getValue(): T? {
+fun <T : Any> WeakReference<T>?.getValue(): T? {
     if (this != null) {
         var value = this.get()
         if (value != null) {
@@ -266,4 +269,13 @@ inline fun <T : Any> WeakReference<T>?.getValue(): T? {
         }
     }
     return null
+}
+
+
+/******************************************* JSONArray **********************************************/
+
+inline fun JSONArray.foreach(block: (Int, Any?) -> Unit) {
+    for (index in 0..this.length()) {
+        block(index, this.opt(index))
+    }
 }

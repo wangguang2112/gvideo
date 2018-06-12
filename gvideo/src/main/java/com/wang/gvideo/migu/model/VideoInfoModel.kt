@@ -47,8 +47,8 @@ data class VideoInfoModel(val name: String,
         return if (playList.play1.isNotEmpty()) {
             playList.play1
         } else {
-            pilotPlayList.play41
-//            ""
+//            pilotPlayList.play41
+            ""
         }
     }
 
@@ -57,8 +57,8 @@ data class VideoInfoModel(val name: String,
         return if (playList.play2.isNotEmpty()) {
             playList.play2
         } else {
-            pilotPlayList.play42
-//            ""
+//            pilotPlayList.play42
+            ""
         }
     }
 
@@ -67,8 +67,8 @@ data class VideoInfoModel(val name: String,
         return if (playList.play3.isNotEmpty()) {
             playList.play3
         } else {
-            pilotPlayList.play43
-//            ""
+//            pilotPlayList.play43
+            ""
         }
     }
 
@@ -77,8 +77,8 @@ data class VideoInfoModel(val name: String,
         return if (playList.play5.isNotEmpty()) {
             playList.play5
         } else {
-            pilotPlayList.play45
-//            ""
+//            pilotPlayList.play45
+            ""
         }
     }
 

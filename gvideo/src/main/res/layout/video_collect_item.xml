@@ -22,8 +22,8 @@
         android:src="@drawable/delete"
         android:layout_marginLeft="3dp"
         android:layout_marginTop="3dp"
-        android:layout_width="20dp"
-        android:layout_height="20dp"/>
+        android:layout_width="30dp"
+        android:layout_height="30dp"/>
     <TextView
         android:id="@+id/video_collect_item_name"
         android:layout_below="@id/video_collect_item_icon"

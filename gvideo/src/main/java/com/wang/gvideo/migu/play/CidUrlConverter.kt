@@ -2,8 +2,10 @@ package com.wang.gvideo.migu.play
 
 import android.util.Base64
 import com.wang.gvideo.common.net.ApiFactory
+import com.wang.gvideo.migu.api.GithubIoInter
 import com.wang.gvideo.migu.api.WapMiGuInter
 import com.wang.gvideo.migu.model.VideoInfoModel
+import org.json.JSONObject
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
@@ -17,14 +19,32 @@ import javax.crypto.spec.DESKeySpec
  * Description:
  *
  * @author wangguang.
+ *
  */
 object CidUrlConverter {
+    const val DEFAULT_COOKIE = "982324173|29F23C094C5E67AFC6AF"
+    var cookie = ""
     fun getVideoObservibe(contId: String): Observable<VideoInfoModel> {
-        return ApiFactory.INSTANCE()
-                .createApi(WapMiGuInter::class.java)
-//                        ApiFactory.createCookie("www.miguvideo.com", "UserInfo", "982324173|772E524A40FA31D9F78D"))
-                .getVideoInfo(contId)
-                .subscribeOn(Schedulers.io())
+        val requestVideo: Observable<List<VideoInfoModel>> =
+                if (cookie.isEmpty()) {
+                    getCookie()
+                            .doOnError {
+                                DEFAULT_COOKIE
+                            }
+                            .flatMap {
+                                ApiFactory.INSTANCE()
+                                        .createApiWithCookie(WapMiGuInter::class.java,
+                                                ApiFactory.createCookie("www.miguvideo.com", "UserInfo", it))
+                                        .getVideoInfo(contId)
+                            }
+
+                } else {
+                    ApiFactory.INSTANCE()
+                            .createApiWithCookie(WapMiGuInter::class.java,
+                                    ApiFactory.createCookie("www.miguvideo.com", "UserInfo", cookie))
+                            .getVideoInfo(contId)
+                }
+        return requestVideo.subscribeOn(Schedulers.io())
                 .map {
                     it[0]
                 }
@@ -41,13 +61,14 @@ object CidUrlConverter {
                     newModel.pilotPlayList.play43 = getRealUrl(it.pilotPlayList.play43, key)
                     newModel.pilotPlayList.play44 = getRealUrl(it.pilotPlayList.play44, key)
                     newModel.pilotPlayList.play45 = getRealUrl(it.pilotPlayList.play45, key)
-                    if(it.Variety.size == 1&& it.Variety[0].contId.isEmpty() ){
+                    if (it.Variety.size == 1 && it.Variety[0].contId.isEmpty()) {
                         newModel.Variety.removeAt(0)
                     }
                     newModel
                 }
                 .observeOn(AndroidSchedulers.mainThread())
     }
+
     private fun getRealUrl(content: String, key: String): String {
         if (content.isNotEmpty()) {
             return URLDecoder.decode(decrypt(content, key))
@@ -63,5 +84,17 @@ object CidUrlConverter {
         val keys = SecretKeyFactory.getInstance("DES").generateSecret(spec)
         cipher.init(Cipher.DECRYPT_MODE, keys)
         return String(cipher.doFinal(Base64.decode(content, 0)))
+    }
+
+    private fun getCookie(): Observable<String> {
+        return ApiFactory.INSTANCE()
+                .createApi(GithubIoInter::class.java)
+                .getCookie()
+                .map {
+                    cookie = it.getString("cookie")
+                    cookie
+                }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
     }
 }

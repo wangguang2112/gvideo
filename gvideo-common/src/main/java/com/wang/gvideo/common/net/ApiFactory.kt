@@ -1,6 +1,7 @@
 package com.wang.gvideo.common.net
 
 import android.os.Environment
+import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.wang.gvideo.common.Common
@@ -54,6 +55,7 @@ class ApiFactory private constructor() {
                     .addInterceptor {
                         val reqBuider = it.request().newBuilder()
 //                                .addHeader("X_UP_CLIENT_CHANNEL_ID", "64000014-99000-800000200000002")
+                        Log.d("ApiFactory","requestUrl ${ it.request().url()}")
                         it.proceed(reqBuider.build())
                     }
                     .cookieJar(cookieJar)
@@ -74,9 +76,12 @@ class ApiFactory private constructor() {
             }
         }
         client(Holder.okHttpClient)
-        baseUrl(baseUrl)
+        if(baseUrl.isNotEmpty()){
+            baseUrl(baseUrl)
+        }
         addCallAdapterFactory(RxJavaCallAdapterFactory.create())
         addConverterFactory(StringResponseConverterFactory.create())
+        addConverterFactory(JSONResponseConverterFactory.create())
         val gsonBuilder = GsonBuilder()
         gsonBuilder.setLenient()
         gsonBuilder.registerTypeAdapterFactory(ListAdapterFactory())

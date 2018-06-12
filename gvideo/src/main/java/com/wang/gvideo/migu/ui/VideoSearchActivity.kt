@@ -19,15 +19,16 @@ import com.wang.gvideo.R
 import com.wang.gvideo.common.base.BaseActivity
 import com.wang.gvideo.common.net.ApiFactory
 import com.wang.gvideo.common.net.OneSubScriber
-import com.wang.gvideo.common.utils.*
+import com.wang.gvideo.common.utils.SharedPreferencesUtil
+import com.wang.gvideo.common.utils.empty
+import com.wang.gvideo.common.utils.notEmptyRun
 import com.wang.gvideo.common.view.RecyclerViewDivider
-import com.wang.gvideo.migu.api.MiGuCmInter
 import com.wang.gvideo.migu.api.MiGuMovieInter
 import com.wang.gvideo.migu.component.DaggerVideoSearchComponent
-import com.wang.gvideo.migu.constant.Config
-import com.wang.gvideo.migu.dao.CollectManager
 import com.wang.gvideo.migu.model.*
 import com.wang.gvideo.migu.play.VideoPlayHelper
+import com.wang.gvideo.migu.task.getNewSearchList
+import com.wang.gvideo.migu.task.getSearchList
 import com.wang.gvideo.migu.ui.adapter.RecommondAdapter
 import com.wang.gvideo.migu.ui.adapter.VideoListAdapter
 import kotlinx.android.synthetic.main.activity_video_search.*
@@ -144,29 +145,9 @@ class VideoSearchActivity : BaseActivity() {
         hideIMSoftKeyboard()
         setOnBusy(true)
         setSharePerfence(value)
-        doHttp(MiGuCmInter::class.java)
-                .getSearchList(4, DensityUtil.getDensityStr(this), Config.CLIENT_ID, 0, value, 1)
-                .subscribeOn(Schedulers.io())
+//        getSearchList(value)
+        getNewSearchList(value)
                 .doOnTerminate { setOnBusy(false) }
-                .observeOn(AndroidSchedulers.mainThread())
-                .map {
-                    val result = it.replace(Regex(",[\\s]*\\}|,[\\s]*\\]")) {
-                        if (it.value.takeLast(1) == "}") {
-                            "}"
-                        } else {
-                            "]"
-                        }
-                    }
-                    ApiFactory.INSTANCE().getGson().fromJson(result, AppVideoListInfo::class.java)
-                }
-                .map {
-                    it.apply {
-                        it.searchresult2.forEach {
-                            it.isCollect = CollectManager.manager.checkExit(AppSearchListItem.getContId(it.contParam))
-                            it.subList.notEmptyRun { it.forEachIndexed { index, appSeasonItem -> appSeasonItem.position = index } }
-                        }
-                    }
-                }
                 .subscribe(object : OneSubScriber<AppVideoListInfo>() {
                     override fun onNext(t: AppVideoListInfo) {
                         super.onNext(t)
@@ -237,7 +218,7 @@ class VideoSearchActivity : BaseActivity() {
                 result.removeAt(result.size - 1)
             }
             result.add(0, key)
-            SharedPreferencesUtil.getInstance(applicationContext).setString(VIDEO_SEARCH_KEY, result.joinToString(separator = ","))
+            SharedPreferencesUtil.getInstance(applicationContext).setString(VIDEO_SEARCH_KEY, result.joinToString(separator = ",").dropLast(1))
 
         }
 

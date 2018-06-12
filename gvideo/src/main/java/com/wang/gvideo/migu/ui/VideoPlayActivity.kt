@@ -7,11 +7,13 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.Toast
 import com.code19.library.DensityUtil
 import com.leo.player.media.IjkVideoManager
 import com.leo.player.media.controller.MediaController
 import com.wang.gvideo.R
 import com.wang.gvideo.common.base.BaseActivity
+import com.wang.gvideo.common.utils.emptyRun
 import com.wang.gvideo.migu.component.DaggerVideoComponent
 import com.wang.gvideo.migu.presenter.VideoPlayPresenter
 import kotlinx.android.synthetic.main.activity_video_play.*
@@ -81,6 +83,10 @@ class VideoPlayActivity : BaseActivity() {
     }
 
     fun startPlay(title: String, url: String,definition:String,playPos:Int = 0) {
+        url.emptyRun {
+            Toast.makeText(this, "播放地址为空", Toast.LENGTH_SHORT).show()
+            return
+        }
         controller.setTitle(title)
         controller.setDefinition(definition)
         if(!isAddProject){
