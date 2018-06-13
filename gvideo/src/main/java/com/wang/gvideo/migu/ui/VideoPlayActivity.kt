@@ -193,7 +193,7 @@ class VideoPlayActivity : BaseActivity() {
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        return if (controller.isLock) {
+        return if (!controller.isLock) {
             super.onKeyDown(keyCode, event)
         } else {
             false
