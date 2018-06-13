@@ -129,10 +129,6 @@ public class M3U8DownloadTask {
         }
     }
 
-    public String getTempDir() {
-        return tempDir;
-    }
-
     public long getReadTimeout() {
         return readTimeout;
     }
@@ -353,6 +349,14 @@ public class M3U8DownloadTask {
     public void setSaveFilePath(String saveFilePath) {
         this.saveFilePath = saveFilePath;
     }
+    public void setTempDir(String tempDir) {
+        this.tempDir = tempDir;
+    }
+
+    public String getTempDir() {
+        return tempDir;
+    }
+
 
     /**
      * 通知异常

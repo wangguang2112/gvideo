@@ -12,7 +12,7 @@ import com.wang.gvideo.migu.dao.model.CacheTaskDao
 class CacheAdapter : IDaoAdapter<CacheTask, CacheTaskDao> {
     override fun adapt(t: CacheTask): CacheTaskDao {
         return CacheTaskDao(t.contId(), t.getUrl(), t.getImg(), t.getName(), t.nodeId(), getTaskState(t.state),
-                t.size, t.percent, t.ts, t.path, t.taskId,t.tempFile?:"")
+                t.size, t.percent, t.ts, t.path, t.taskId,t.tempFile)
     }
 
     override fun reAdapt(t: CacheTaskDao?): CacheTask? {

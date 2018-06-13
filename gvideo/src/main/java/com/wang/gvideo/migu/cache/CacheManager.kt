@@ -87,6 +87,7 @@ class CacheManager {
             val id = task.taskId()
             if (task is CacheTask) {
                 task.path = buildPath(task)
+                task.tempFile = buildTempPath(task)
                 DataCenter.instance().insert(CacheTaskDao::class, task, CacheAdapter())
             }
             taskList[id] = task
@@ -122,6 +123,18 @@ class CacheManager {
                 App.app.getExternalFilesDir("videoCache").path
             } else {
                 App.app.getFileStreamPath("videoCache").path
+            }
+            return rootPath + File.separator + task.nodeId() + File.separator + task.contId() + ".mp4"
+        }
+        return ""
+    }
+
+    fun buildTempPath(task: ITask): String {
+        if (task is CacheTask) {
+            val rootPath = if (Environment.MEDIA_MOUNTED == Environment.getExternalStorageState() || !Environment.isExternalStorageRemovable()) {
+                App.app.externalCacheDir.path + File.separator +"m3u8temp"
+            } else {
+                App.app.cacheDir.path + File.separator +"m3u8temp"
             }
             return rootPath + File.separator + task.nodeId() + File.separator + task.contId() + ".mp4"
         }
@@ -173,10 +186,7 @@ class CacheManager {
             task?.let {
                 File(it.path()).deleteOnExit()
                 if (it is CacheTask) {
-                    it.tempFile?.let { temp ->
-                        clearTemp(temp)
-                    }
-
+                    clearTemp( it.tempFile)
                 }
             }
             taskCallBack.remove(it)
@@ -226,8 +236,8 @@ class CacheManager {
         val task = taskList[taskVideoId[contId]]
         task ?: return Observable.just(false)
         if (task is CacheTask) {
-            if(task.tempFile?.isNotEmpty() == true){
-                val temp = task.tempFile!!
+            if(task.tempFile.isNotEmpty()){
+                val temp = task.tempFile
                 return Observable
                         .create(SyncOnSubscribe.createStateless<Boolean>({
                             it.onNext(videoMerge.merge(temp, task.path))

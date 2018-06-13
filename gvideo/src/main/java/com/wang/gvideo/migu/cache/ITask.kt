@@ -28,4 +28,5 @@ interface ITask {
     fun size():Long
     fun taskId():String
     fun path():String
+    fun temppath():String
 }

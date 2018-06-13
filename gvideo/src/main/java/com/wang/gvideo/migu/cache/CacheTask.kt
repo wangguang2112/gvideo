@@ -38,7 +38,7 @@ class CacheTask(private val url: String,
     var sizeListener: ((size: Long) -> Unit)? = null
     var percentListener: ((percent: Int) -> Unit)? = null
 
-    var tempFile: String? = null
+    var tempFile: String = ""
     override fun state(): ITask.STATE {
         return state
     }
@@ -72,6 +72,10 @@ class CacheTask(private val url: String,
 
     override fun path(): String {
         return path
+    }
+
+    override fun temppath(): String {
+        return tempFile
     }
 
     override fun size(): Long {
