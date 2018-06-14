@@ -164,6 +164,7 @@ class VideoPlayPresenter @Inject constructor(activity: VideoPlayActivity) : Base
 
 
     private fun getVideoInfo(contId: String) {
+        setOnBusy(true)
         val s = CidUrlConverter.getVideoObservibe(contId)
                 .doOnTerminate { setOnBusy(false) }
                 .subscribe(object : OneSubScriber<VideoInfoModel>() {
