@@ -42,7 +42,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation(name: "hpplay-link-2412", ext: "aar")
     implementation project(":player")
-    implementation project(":rnmodule")
+//    implementation project(":rnmodule")
     api project(":gvideo-common")
     kapt 'com.jakewharton:butterknife-compiler:8.4.0'
     kapt 'com.google.dagger:dagger-android-processor:2.11'

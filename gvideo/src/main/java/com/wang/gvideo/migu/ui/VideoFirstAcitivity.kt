@@ -49,7 +49,7 @@ import com.wang.gvideo.migu.ui.view.GRefreshHeader
 import kotlinx.android.synthetic.main.activity_video_first.*
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
-import video.wang.com.rnmodule.ReactRootActivity
+//import video.wang.com.rnmodule.ReactRootActivity
 
 
 /**
@@ -324,7 +324,7 @@ class VideoFirstAcitivity : BaseActivity() {
     }
 
     private fun moreOptionsHandle() {
-        startActivity(Intent(this,ReactRootActivity::class.java))
+//        startActivity(Intent(this,ReactRootActivity::class.java))
     }
 
 
