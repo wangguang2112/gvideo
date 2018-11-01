@@ -24,6 +24,7 @@ allprojects {
 //        maven {
 //            url "${project.project(":rnmodule").projectDir}/node_modules/react-native/android/"
 //        }
+        mavenCentral()
     }
 }
 

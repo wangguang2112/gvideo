@@ -1,0 +1,10 @@
+apply plugin: "maven"
+
+uploadArchives {
+    repositories.mavenDeployer {
+        repository(url: uri("D:\\repository"))
+        pom.groupId = "com.wang.gvideo.common"
+        pom.artifactId = "gvideo-common"
+        pom.version = "0.0.1"
+    }
+}
